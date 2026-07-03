@@ -553,10 +553,8 @@
     cursor:pointer;
   }
   .itin-datebtn .dow{font-size:10px;text-transform:uppercase;letter-spacing:0.04em;font-weight:700;}
-  .itin-datebtn .dnum{font-family:var(--serif);font-size:16px;font-weight:700;color:var(--text);}
   .itin-datebtn.active{background:var(--accent-soft);border-color:var(--accent-dim);}
   .itin-datebtn.active .dow{color:var(--accent);}
-  .itin-datebtn.active .dnum{color:var(--accent);}
 
   .itin-carousel{
     display:flex;
@@ -587,7 +585,6 @@
     padding-bottom:8px;
     border-bottom:1px solid var(--border);
   }
-  .itin-day-header .itin-day-num{color:var(--accent);}
   .itin-slot{
     margin-bottom:10px;
   }
@@ -811,7 +808,6 @@
   <!-- FAVORITES TAB -->
   <section id="tab-favorites" class="tab-panel">
     <p class="section-title">Trip Itinerary</p>
-    <p class="section-sub">Sat, Jul 25 &ndash; Sat, Aug 1</p>
     <p class="itin-hint">Use the &#128197; Add to itinerary picker on any activity, food, or wildlife card to schedule it here. Swipe the card row, or tap a date above, to move between days.</p>
     <div class="itin-datestrip" id="itin-datestrip"></div>
     <div class="itin-carousel" id="itin-carousel"></div>
@@ -1213,12 +1209,12 @@
 
   var TIME_ENTRY_PEOPLE = ["Jess", "Jackie", "Grace"];
   var TIME_ENTRY_DAYS = [
-    { day:"Sun", date:26, entries:{ Jess:{type:"plus", time:"8–10 AM"}, Jackie:{type:"plus", time:"8–10 AM"}, Grace:{type:"plus", time:"8–10 AM"} } },
-    { day:"Mon", date:27, entries:{ Jess:{type:"standard", time:"9–11 AM"}, Jackie:{type:"standard", time:"9–11 AM"}, Grace:{type:"standard", time:"9–11 AM"} } },
-    { day:"Tue", date:28, entries:{ Jess:{type:"plus", time:"10 AM–12 PM"}, Jackie:{type:"standard", time:"9–11 AM"}, Grace:{type:"plus", time:"10 AM–12 PM"} } },
-    { day:"Wed", date:29, entries:{ Jess:{type:"plus", time:"8–10 AM"}, Jackie:null, Grace:{type:"plus", time:"8–10 AM"} } },
-    { day:"Thu", date:30, entries:{ Jess:{type:"standard", time:"9–11 AM"}, Jackie:{type:"standard", time:"9–11 AM"}, Grace:{type:"standard", time:"9–11 AM"} } },
-    { day:"Fri", date:31, entries:{ Jess:{type:"plus", time:"8–10 AM"}, Jackie:{type:"plus", time:"10 AM–12 PM"}, Grace:{type:"plus", time:"8–10 AM"} } }
+    { day:"Sun", entries:{ Jess:{type:"plus", time:"8–10 AM"}, Jackie:{type:"plus", time:"8–10 AM"}, Grace:{type:"plus", time:"8–10 AM"} } },
+    { day:"Mon", entries:{ Jess:{type:"standard", time:"9–11 AM"}, Jackie:{type:"standard", time:"9–11 AM"}, Grace:{type:"standard", time:"9–11 AM"} } },
+    { day:"Tue", entries:{ Jess:{type:"plus", time:"10 AM–12 PM"}, Jackie:{type:"standard", time:"9–11 AM"}, Grace:{type:"plus", time:"10 AM–12 PM"} } },
+    { day:"Wed", entries:{ Jess:{type:"plus", time:"8–10 AM"}, Jackie:null, Grace:{type:"plus", time:"8–10 AM"} } },
+    { day:"Thu", entries:{ Jess:{type:"standard", time:"9–11 AM"}, Jackie:{type:"standard", time:"9–11 AM"}, Grace:{type:"standard", time:"9–11 AM"} } },
+    { day:"Fri", entries:{ Jess:{type:"plus", time:"8–10 AM"}, Jackie:{type:"plus", time:"10 AM–12 PM"}, Grace:{type:"plus", time:"8–10 AM"} } }
   ];
   var TIME_ENTRY_INFO = [
     { title:"The Two Permit Types", open:true, html:
@@ -1279,8 +1275,7 @@
       days.push({
         date: d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"),
         dow: d.toLocaleDateString("en-US", { weekday: "short" }),
-        month: d.toLocaleDateString("en-US", { month: "short" }),
-        num: d.getDate()
+        dowFull: d.toLocaleDateString("en-US", { weekday: "long" })
       });
     }
     return days;
@@ -1677,7 +1672,7 @@
         var label = e.type === "plus" ? "Timed Entry+" : "Timed Entry";
         return "<td><div class=\"te-cell " + cls + "\"><span class=\"te-type\">" + label + "</span><span class=\"te-time\">" + e.time + "</span></div></td>";
       }).join("");
-      return "<tr><th>" + d.day + " " + d.date + "</th>" + cells + "</tr>";
+      return "<tr><th>" + d.day + "</th>" + cells + "</tr>";
     }).join("");
     document.getElementById("timeentry-table-wrap").innerHTML =
       "<table class=\"te-table\"><thead>" + thead + "</thead><tbody>" + rows + "</tbody></table>";
@@ -1717,7 +1712,7 @@
 
     TRIP_DAYS.forEach(function(day){
       var group = document.createElement("optgroup");
-      group.label = day.dow + ", " + day.month + " " + day.num;
+      group.label = day.dowFull;
       ITIN_SLOTS.forEach(function(slotName){
         var opt = document.createElement("option");
         opt.value = day.date + "|" + slotName;
@@ -1733,7 +1728,7 @@
       var date = parts[0], slotName = parts[1];
       addToItinerary(date, slotName, item.id);
       var day = TRIP_DAYS.filter(function(d){ return d.date === date; })[0];
-      showItinToast("Added “" + item.name + "” to " + day.dow + " " + day.month + " " + day.num + " – " + slotName);
+      showItinToast("Added “" + item.name + "” to " + day.dowFull + " – " + slotName);
       select.value = "";
       refreshItineraryIfActive();
     });
@@ -1770,7 +1765,7 @@
       var dateBtn = document.createElement("button");
       dateBtn.type = "button";
       dateBtn.className = "itin-datebtn";
-      dateBtn.innerHTML = "<span class=\"dow\">" + day.dow + "</span><span class=\"dnum\">" + day.num + "</span>";
+      dateBtn.innerHTML = "<span class=\"dow\">" + day.dow + "</span>";
       dateBtn.addEventListener("click", function(){
         var target = carouselEl.children[i];
         if(target) target.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
@@ -1781,7 +1776,7 @@
       dayEl.className = "itin-day";
       var header = document.createElement("p");
       header.className = "itin-day-header";
-      header.innerHTML = day.dow + ", " + day.month + " <span class=\"itin-day-num\">" + day.num + "</span>";
+      header.innerHTML = day.dowFull;
       dayEl.appendChild(header);
 
       ITIN_SLOTS.forEach(function(slotName){
