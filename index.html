@@ -529,6 +529,160 @@
   .te-cell.te-plus .te-type{color:var(--accent);}
   .te-empty{color:var(--text-faint);font-size:13px;}
 
+  /* ---------- Itinerary (Favorites tab) ---------- */
+  .itin-datestrip{
+    display:flex;
+    gap:6px;
+    overflow-x:auto;
+    padding:2px 2px 12px;
+  }
+  .itin-datestrip::-webkit-scrollbar{display:none;}
+  .itin-datebtn{
+    flex:0 0 auto;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:1px;
+    width:44px;
+    padding:7px 0 6px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    background:var(--bg-elev);
+    color:var(--text-dim);
+    font-family:var(--sans);
+    cursor:pointer;
+  }
+  .itin-datebtn .dow{font-size:10px;text-transform:uppercase;letter-spacing:0.04em;font-weight:700;}
+  .itin-datebtn .dnum{font-family:var(--serif);font-size:16px;font-weight:700;color:var(--text);}
+  .itin-datebtn.active{background:var(--accent-soft);border-color:var(--accent-dim);}
+  .itin-datebtn.active .dow{color:var(--accent);}
+  .itin-datebtn.active .dnum{color:var(--accent);}
+
+  .itin-carousel{
+    display:flex;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    gap:16px;
+    padding:4px 32px 18px;
+    margin:0 -14px;
+  }
+  .itin-carousel::-webkit-scrollbar{display:none;}
+  .itin-day{
+    flex:0 0 auto;
+    width:calc(100% - 64px);
+    scroll-snap-align:center;
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:14px 15px 16px;
+    transition:transform 0.08s linear;
+  }
+  .itin-day-header{
+    font-family:var(--serif);
+    font-size:16px;
+    font-weight:700;
+    color:var(--text);
+    margin:0 0 12px;
+    padding-bottom:8px;
+    border-bottom:1px solid var(--border);
+  }
+  .itin-day-header .itin-day-num{color:var(--accent);}
+  .itin-slot{
+    margin-bottom:10px;
+  }
+  .itin-slot:last-child{margin-bottom:0;}
+  .itin-slot-label{
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:var(--text-faint);
+    margin:0 0 6px;
+  }
+  .itin-slot-drop{
+    min-height:38px;
+    border:1.5px dashed var(--border);
+    border-radius:8px;
+    padding:6px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    align-items:center;
+  }
+  .itin-slot-drop.drag-over{
+    border-color:var(--accent);
+    background:var(--accent-soft);
+  }
+  .itin-slot-empty{
+    font-size:12px;
+    color:var(--text-faint);
+    padding:4px 6px;
+  }
+  .itin-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    max-width:100%;
+    background:var(--bg);
+    border:1px solid var(--accent-dim);
+    border-radius:20px;
+    padding:5px 6px 5px 11px;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--text);
+  }
+  .itin-chip span.itin-chip-label{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .itin-chip button{
+    flex:0 0 auto;
+    background:none;
+    border:none;
+    color:var(--text-faint);
+    font-size:15px;
+    line-height:1;
+    padding:2px 3px;
+    cursor:pointer;
+  }
+  .itin-chip button:active{color:var(--rust);}
+
+  .itin-hint{
+    font-size:12.5px;
+    color:var(--text-faint);
+    margin:-4px 0 14px;
+  }
+  .drag-handle{
+    flex:0 0 auto;
+    background:none;
+    border:none;
+    padding:2px 4px;
+    font-size:17px;
+    line-height:1;
+    color:var(--text-faint);
+    cursor:grab;
+    touch-action:none;
+  }
+  .drag-handle:active{cursor:grabbing;color:var(--accent);}
+  .drag-ghost{
+    position:fixed;
+    z-index:1000;
+    pointer-events:none;
+    background:var(--bg-elev-2);
+    border:1px solid var(--accent);
+    border-radius:20px;
+    padding:6px 13px;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--text);
+    box-shadow:0 6px 18px rgba(0,0,0,0.4);
+    opacity:0.95;
+    transform:translate(-50%,-50%);
+    white-space:nowrap;
+  }
+
   /* ---------- Bottom tab bar ---------- */
   nav.tab-bar{
     position:fixed;
@@ -641,6 +795,13 @@
 
   <!-- FAVORITES TAB -->
   <section id="tab-favorites" class="tab-panel">
+    <p class="section-title">Trip Itinerary</p>
+    <p class="section-sub">Sat, Jul 25 &ndash; Sat, Aug 1</p>
+    <p class="itin-hint">Drag the &#10021; handle on a favorite below onto a day/time slot to plan your trip. Swipe the card row to move between days.</p>
+    <div class="itin-datestrip" id="itin-datestrip"></div>
+    <div class="itin-carousel" id="itin-carousel"></div>
+
+    <p class="section-title">Your Favorites</p>
     <p class="section-sub">Everything you've starred — activities, food, and wildlife together.</p>
     <div id="favorites-list"></div>
   </section>
@@ -907,6 +1068,10 @@
     { cat:"insects", name:"Bumblebees", meta:"Insect &middot; Bombus spp. — about 15 species in the park", desc:"RMNP is a hotspot for native bumblebee diversity, with roughly 15 species recorded from lowland meadows to above treeline — some of the very few bees able to fly and forage in cold, high-altitude conditions thanks to their furry, heat-retaining bodies. Long-term NPS monitoring here has tracked declines in some species tied to a warming climate.", spot:"Wildflower meadows at every elevation, including alpine tundra in summer — look for them working lupine, paintbrush, and other high-country blooms.", img:"https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Bombus_lapidarius_-_Melilotus_officinalis_-_Tallinn.jpg/330px-Bombus_lapidarius_-_Melilotus_officinalis_-_Tallinn.jpg", link:"https://www.nps.gov/romo/bumblebees.htm", linkLabel:"NPS bumblebee info" }
   ];
   WILDLIFE.forEach(function(item, i){ item.id = "wild-" + i; });
+
+  var ALL_ITEMS_BY_ID = {};
+  ACTIVITIES.concat(FOOD, WILDLIFE).forEach(function(item){ ALL_ITEMS_BY_ID[item.id] = item; });
+
   var WILDLIFE_CATEGORIES = [
     { value:"large-mammals", label:"Large Mammals", icon:"<path d=\"M12 21 V9 M12 9 L8 3 M12 9 L16 3 M9.5 5.5 L6 5 M14.5 5.5 L18 5\"/>" },
     { value:"small-mammals", label:"Small Mammals", icon:"<circle cx=\"12\" cy=\"16\" r=\"4.2\"/><circle cx=\"7\" cy=\"8.5\" r=\"1.9\"/><circle cx=\"12\" cy=\"6\" r=\"1.9\"/><circle cx=\"17\" cy=\"8.5\" r=\"1.9\"/>" },
@@ -1084,7 +1249,50 @@
     if(favTab && favTab.classList.contains("active")) drawFavorites();
   }
 
-  function buildCard(item){
+  /* ============ ITINERARY (localStorage) ============ */
+  var ITINERARY_KEY = "rmnp-itinerary";
+  var ITIN_SLOTS = ["Morning", "Afternoon", "Evening"];
+  var TRIP_DAYS = (function(){
+    var days = [];
+    var start = new Date(2026, 6, 25); // Sat Jul 25, 2026
+    for(var i = 0; i < 8; i++){
+      var d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+      days.push({
+        date: d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"),
+        dow: d.toLocaleDateString("en-US", { weekday: "short" }),
+        month: d.toLocaleDateString("en-US", { month: "short" }),
+        num: d.getDate()
+      });
+    }
+    return days;
+  })();
+
+  function getItinerary(){
+    try{
+      var raw = localStorage.getItem(ITINERARY_KEY);
+      return raw ? JSON.parse(raw) : {};
+    }catch(e){ return {}; }
+  }
+  function saveItinerary(data){
+    try{ localStorage.setItem(ITINERARY_KEY, JSON.stringify(data)); }catch(e){}
+  }
+  function addToItinerary(date, slot, id){
+    var data = getItinerary();
+    if(!data[date]) data[date] = {};
+    if(!data[date][slot]) data[date][slot] = [];
+    if(data[date][slot].indexOf(id) === -1) data[date][slot].push(id);
+    saveItinerary(data);
+  }
+  function removeFromItinerary(date, slot, id){
+    var data = getItinerary();
+    if(data[date] && data[date][slot]){
+      var idx = data[date][slot].indexOf(id);
+      if(idx !== -1) data[date][slot].splice(idx, 1);
+      saveItinerary(data);
+    }
+  }
+
+  function buildCard(item, showDragHandle){
     var card = document.createElement("div");
     card.className = "card";
 
@@ -1096,6 +1304,10 @@
 
     var actions = document.createElement("div");
     actions.className = "card-top-actions";
+
+    if(showDragHandle){
+      actions.appendChild(buildDragHandle(item));
+    }
 
     var badge = document.createElement("span");
     badge.className = "dist-badge";
@@ -1169,7 +1381,7 @@
     return card;
   }
 
-  function buildAnimalCard(item){
+  function buildAnimalCard(item, showDragHandle){
     var card = document.createElement("div");
     card.className = "card animal-card";
 
@@ -1189,6 +1401,12 @@
     h3.textContent = item.name;
     top.appendChild(h3);
 
+    var actions = document.createElement("div");
+    actions.className = "card-top-actions";
+    if(showDragHandle){
+      actions.appendChild(buildDragHandle(item));
+    }
+
     var starBtn = document.createElement("button");
     starBtn.type = "button";
     starBtn.className = "fav-star" + (isFavorite(item.id) ? " active" : "");
@@ -1200,7 +1418,8 @@
       starBtn.classList.toggle("active", nowFav);
       refreshFavoritesIfActive();
     });
-    top.appendChild(starBtn);
+    actions.appendChild(starBtn);
+    top.appendChild(actions);
     body.appendChild(top);
 
     if(item.meta){
@@ -1451,8 +1670,193 @@
     renderInfoBlocks("timeentry-info-list", TIME_ENTRY_INFO);
   }
 
+  /* ============ ITINERARY drag & drop + render ============ */
+  var activeDrag = null; // { ghost, item, hoveredSlot }
+
+  function buildDragHandle(item){
+    var handle = document.createElement("button");
+    handle.type = "button";
+    handle.className = "drag-handle";
+    handle.setAttribute("aria-label", "Drag " + item.name + " to a day");
+    handle.textContent = "⠿";
+    handle.addEventListener("pointerdown", function(ev){
+      startDrag(ev, item);
+    });
+    return handle;
+  }
+
+  function startDrag(ev, item){
+    ev.preventDefault();
+    var ghost = document.createElement("div");
+    ghost.className = "drag-ghost";
+    ghost.textContent = item.name;
+    document.body.appendChild(ghost);
+    positionGhost(ghost, ev.clientX, ev.clientY);
+
+    activeDrag = { ghost: ghost, item: item, hoveredSlot: null };
+
+    document.addEventListener("pointermove", onDragMove);
+    document.addEventListener("pointerup", onDragEnd);
+    document.addEventListener("pointercancel", onDragEnd);
+  }
+
+  function positionGhost(ghost, x, y){
+    ghost.style.left = x + "px";
+    ghost.style.top = y + "px";
+  }
+
+  function onDragMove(ev){
+    if(!activeDrag) return;
+    positionGhost(activeDrag.ghost, ev.clientX, ev.clientY);
+
+    activeDrag.ghost.style.display = "none";
+    var under = document.elementFromPoint(ev.clientX, ev.clientY);
+    activeDrag.ghost.style.display = "";
+
+    var slot = under ? under.closest(".itin-slot-drop") : null;
+    if(slot !== activeDrag.hoveredSlot){
+      if(activeDrag.hoveredSlot) activeDrag.hoveredSlot.classList.remove("drag-over");
+      if(slot) slot.classList.add("drag-over");
+      activeDrag.hoveredSlot = slot;
+    }
+  }
+
+  function onDragEnd(ev){
+    if(!activeDrag) return;
+    document.removeEventListener("pointermove", onDragMove);
+    document.removeEventListener("pointerup", onDragEnd);
+    document.removeEventListener("pointercancel", onDragEnd);
+
+    var slot = activeDrag.hoveredSlot;
+    if(slot){
+      slot.classList.remove("drag-over");
+      addToItinerary(slot.getAttribute("data-date"), slot.getAttribute("data-slot"), activeDrag.item.id);
+      renderItinerary();
+    }
+    activeDrag.ghost.remove();
+    activeDrag = null;
+  }
+
+  function updateCarouselFade(carousel){
+    var days = carousel.querySelectorAll(".itin-day");
+    var center = carousel.getBoundingClientRect().left + carousel.clientWidth / 2;
+    var closestIdx = 0, closestDist = Infinity;
+    days.forEach(function(day, i){
+      var box = day.getBoundingClientRect();
+      var dayCenter = box.left + box.width / 2;
+      var rawDist = Math.abs(dayCenter - center);
+      var t = Math.min(rawDist / (box.width || 1), 1);
+      day.style.opacity = (1 - t * 0.65).toFixed(2);
+      day.style.transform = "scale(" + (1 - t * 0.1).toFixed(3) + ")";
+      if(rawDist < closestDist){ closestDist = rawDist; closestIdx = i; }
+    });
+    return closestIdx;
+  }
+
+  function renderItinerary(){
+    var data = getItinerary();
+
+    var stripEl = document.getElementById("itin-datestrip");
+    var carouselEl = document.getElementById("itin-carousel");
+    stripEl.innerHTML = "";
+    carouselEl.innerHTML = "";
+
+    TRIP_DAYS.forEach(function(day, i){
+      var dateBtn = document.createElement("button");
+      dateBtn.type = "button";
+      dateBtn.className = "itin-datebtn";
+      dateBtn.innerHTML = "<span class=\"dow\">" + day.dow + "</span><span class=\"dnum\">" + day.num + "</span>";
+      dateBtn.addEventListener("click", function(){
+        var target = carouselEl.children[i];
+        if(target) target.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      });
+      stripEl.appendChild(dateBtn);
+
+      var dayEl = document.createElement("div");
+      dayEl.className = "itin-day";
+      var header = document.createElement("p");
+      header.className = "itin-day-header";
+      header.innerHTML = day.dow + ", " + day.month + " <span class=\"itin-day-num\">" + day.num + "</span>";
+      dayEl.appendChild(header);
+
+      ITIN_SLOTS.forEach(function(slotName){
+        var slotEl = document.createElement("div");
+        slotEl.className = "itin-slot";
+
+        var label = document.createElement("p");
+        label.className = "itin-slot-label";
+        label.textContent = slotName;
+        slotEl.appendChild(label);
+
+        var drop = document.createElement("div");
+        drop.className = "itin-slot-drop";
+        drop.setAttribute("data-date", day.date);
+        drop.setAttribute("data-slot", slotName);
+
+        var ids = (data[day.date] && data[day.date][slotName]) || [];
+        var entries = ids.map(function(id){ return ALL_ITEMS_BY_ID[id]; }).filter(Boolean);
+
+        if(entries.length === 0){
+          var empty = document.createElement("span");
+          empty.className = "itin-slot-empty";
+          empty.textContent = "Drop here";
+          drop.appendChild(empty);
+        } else {
+          entries.forEach(function(entry){
+            var chip = document.createElement("span");
+            chip.className = "itin-chip";
+            var label2 = document.createElement("span");
+            label2.className = "itin-chip-label";
+            label2.textContent = entry.name;
+            chip.appendChild(label2);
+            var removeBtn = document.createElement("button");
+            removeBtn.type = "button";
+            removeBtn.setAttribute("aria-label", "Remove " + entry.name + " from this slot");
+            removeBtn.textContent = "×";
+            removeBtn.addEventListener("click", function(){
+              removeFromItinerary(day.date, slotName, entry.id);
+              renderItinerary();
+            });
+            chip.appendChild(removeBtn);
+            drop.appendChild(chip);
+          });
+        }
+
+        slotEl.appendChild(drop);
+        dayEl.appendChild(slotEl);
+      });
+
+      carouselEl.appendChild(dayEl);
+    });
+
+    markActiveDay(stripEl, updateCarouselFade(carouselEl));
+  }
+
+  function markActiveDay(stripEl, idx){
+    Array.prototype.forEach.call(stripEl.children, function(btn, i){
+      btn.classList.toggle("active", i === idx);
+    });
+  }
+
+  var itinFadeTicking = false;
+  function initCarouselScrollFade(){
+    var carouselEl = document.getElementById("itin-carousel");
+    carouselEl.addEventListener("scroll", function(){
+      if(itinFadeTicking) return;
+      itinFadeTicking = true;
+      requestAnimationFrame(function(){
+        var stripEl = document.getElementById("itin-datestrip");
+        markActiveDay(stripEl, updateCarouselFade(carouselEl));
+        itinFadeTicking = false;
+      });
+    });
+  }
+  initCarouselScrollFade();
+
   /* ============ RENDER: Favorites tab ============ */
   function drawFavorites(){
+    renderItinerary();
+
     var ids = getFavoriteIds();
     var favActivities = ACTIVITIES.filter(function(a){ return ids.indexOf(a.id) !== -1; });
     var favFood = FOOD.filter(function(a){ return ids.indexOf(a.id) !== -1; });
@@ -1476,21 +1880,21 @@
       h1.className = "section-title";
       h1.textContent = "Activities";
       container.appendChild(h1);
-      favActivities.forEach(function(item){ container.appendChild(buildCard(item)); });
+      favActivities.forEach(function(item){ container.appendChild(buildCard(item, true)); });
     }
     if(favFood.length){
       var h2 = document.createElement("p");
       h2.className = "section-title";
       h2.textContent = "Food & Drink";
       container.appendChild(h2);
-      favFood.forEach(function(item){ container.appendChild(buildCard(item)); });
+      favFood.forEach(function(item){ container.appendChild(buildCard(item, true)); });
     }
     if(favWildlife.length){
       var h3 = document.createElement("p");
       h3.className = "section-title";
       h3.textContent = "Wildlife";
       container.appendChild(h3);
-      favWildlife.forEach(function(item){ container.appendChild(buildAnimalCard(item)); });
+      favWildlife.forEach(function(item){ container.appendChild(buildAnimalCard(item, true)); });
     }
   }
 
