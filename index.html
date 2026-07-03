@@ -76,6 +76,26 @@
   header.app-header .stay-line a{
     border-bottom:1px solid var(--accent-dim);
   }
+  header.app-header .eyebrow, header.app-header h1{
+    padding-right:74px;
+  }
+  .weather-widget{
+    position:absolute;
+    top:20px;right:16px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:6px 12px 6px 10px;
+    cursor:pointer;
+    font-family:var(--sans);
+    z-index:2;
+  }
+  .weather-widget:active{background:var(--bg-elev-2);}
+  .weather-widget-icon{font-size:17px;line-height:1;}
+  .weather-widget-temp{font-size:13.5px;font-weight:700;color:var(--text);}
 
   /* ---------- Tabs content ---------- */
   main{padding:16px 14px 28px;max-width:640px;margin:0 auto;}
@@ -318,6 +338,55 @@
     flex:0 0 auto;
     line-height:1;
   }
+  #activities-categories, #food-categories{margin-top:-8px;}
+
+  /* ---------- Weather widget detail page ---------- */
+  .weather-now-card{padding:18px 16px;}
+  .weather-now-top{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:12px;
+  }
+  .weather-now-icon{font-size:44px;line-height:1;flex:0 0 auto;}
+  .weather-now-temp{
+    font-family:var(--serif);
+    font-size:30px;
+    font-weight:700;
+    color:var(--text);
+    line-height:1.15;
+  }
+  .weather-now-desc{font-size:14px;color:var(--text-dim);margin-top:2px;}
+  .weather-now-details{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px 18px;
+    padding-top:12px;
+    border-top:1px solid var(--border);
+  }
+  .weather-now-stat{font-size:12.5px;color:var(--text-dim);}
+  .weather-day-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:11px 15px;
+  }
+  .weather-day-name{
+    flex:0 0 60px;
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:14px;
+    color:var(--text);
+  }
+  .weather-day-icon{font-size:20px;flex:0 0 auto;}
+  .weather-day-desc{flex:1;font-size:13px;color:var(--text-dim);}
+  .weather-day-temps{
+    flex:0 0 auto;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--accent);
+    white-space:nowrap;
+  }
 
   /* ---------- Back button (Activities detail screen) ---------- */
   .back-btn{
@@ -489,21 +558,15 @@
   nav.tab-bar button svg{width:21px;height:21px;stroke:var(--text-faint);fill:none;}
   nav.tab-bar button.active{color:var(--accent);}
   nav.tab-bar button.active svg{stroke:var(--accent);}
-
-  footer.app-footer{
-    max-width:640px;
-    margin:8px auto 0;
-    padding:16px 18px 4px;
-    font-size:12px;
-    color:var(--text-faint);
-    line-height:1.6;
-    border-top:1px solid var(--border);
-  }
 </style>
 </head>
 <body>
 
 <header class="app-header">
+  <button class="weather-widget" id="weather-widget" type="button" aria-label="View detailed weather forecast">
+    <span class="weather-widget-icon" id="weather-widget-icon">&#9925;</span>
+    <span class="weather-widget-temp" id="weather-widget-temp">&ndash;&deg;</span>
+  </button>
   <p class="eyebrow">Estes Park &middot; July 2026</p>
   <h1>Rocky Mountain National Park Trip Guide</h1>
   <p class="stay-line">Staying at <strong>1180 Fall River Road</strong> &mdash;
@@ -519,7 +582,6 @@
   <!-- ACTIVITIES TAB -->
   <section id="tab-activities" class="tab-panel active">
     <div id="activities-categories">
-      <p class="section-sub">Choose a category, then browse everything in it — sorted nearest to farthest from the cabin.</p>
       <div id="activities-cat-grid"></div>
     </div>
     <div id="activities-detail" style="display:none;">
@@ -532,7 +594,6 @@
   <!-- FOOD TAB -->
   <section id="tab-food" class="tab-panel">
     <div id="food-categories">
-      <p class="section-sub">Choose a category, then browse everything in it — sorted nearest to farthest from the cabin.</p>
       <div id="food-cat-grid"></div>
     </div>
     <div id="food-detail" style="display:none;">
@@ -584,11 +645,30 @@
     <div id="favorites-list"></div>
   </section>
 
-</main>
+  <!-- WEATHER (opened from header widget, not part of the bottom tab bar) -->
+  <section id="tab-weather" class="tab-panel">
+    <button class="back-btn" id="weather-back">&#8249; Back</button>
+    <p class="section-title">Current Conditions</p>
+    <p class="section-sub">Estes Park &amp; Rocky Mountain National Park</p>
+    <div class="card weather-now-card">
+      <div class="weather-now-top">
+        <span class="weather-now-icon" id="weather-now-icon">&#9925;</span>
+        <div>
+          <div class="weather-now-temp" id="weather-now-temp">&ndash;&deg;F</div>
+          <div class="weather-now-desc" id="weather-now-desc">Loading&hellip;</div>
+        </div>
+      </div>
+      <div class="weather-now-details" id="weather-now-details"></div>
+    </div>
 
-<footer class="app-footer">
-  Built for the July 2026 trip. Save this page to your device (or Add to Home Screen) for offline access &mdash; the Directions, official links, and wildlife photos need a signal, but everything else works without one.
-</footer>
+    <p class="section-title">7-Day Forecast</p>
+    <div id="weather-forecast-list"></div>
+
+    <p class="section-title">Good to Know</p>
+    <p class="fact-line">Mountain weather changes fast, and conditions in the park &mdash; especially above treeline &mdash; can differ a lot from town. Check the <a href="https://www.nps.gov/romo/planyourvisit/all-about-weather.htm" target="_blank" rel="noopener">NPS weather page</a> before any hike.</p>
+  </section>
+
+</main>
 
 <nav class="tab-bar" id="tab-bar">
   <button data-tab="tab-activities" class="active">
@@ -1415,17 +1495,122 @@
   }
 
   /* ============ TABS ============ */
+  function showPanel(tabId){
+    document.querySelectorAll(".tab-panel").forEach(function(p){ p.classList.remove("active"); });
+    document.getElementById(tabId).classList.add("active");
+    window.scrollTo(0,0);
+  }
+
   var tabButtons = document.querySelectorAll("#tab-bar button");
   tabButtons.forEach(function(btn){
     btn.addEventListener("click", function(){
       tabButtons.forEach(function(b){ b.classList.remove("active"); });
       btn.classList.add("active");
-      document.querySelectorAll(".tab-panel").forEach(function(p){ p.classList.remove("active"); });
-      document.getElementById(btn.getAttribute("data-tab")).classList.add("active");
+      showPanel(btn.getAttribute("data-tab"));
       if(btn.getAttribute("data-tab") === "tab-favorites") drawFavorites();
-      window.scrollTo(0,0);
     });
   });
+
+  document.getElementById("weather-widget").addEventListener("click", function(){
+    showPanel("tab-weather");
+  });
+  document.getElementById("weather-back").addEventListener("click", function(){
+    var activeBtn = document.querySelector("#tab-bar button.active");
+    showPanel(activeBtn ? activeBtn.getAttribute("data-tab") : "tab-activities");
+  });
+
+  /* ============ WEATHER ============ */
+  var WEATHER_LAT = 40.3772, WEATHER_LON = -105.5217;
+  var WEATHER_CODES = {
+    0:{label:"Clear sky", icon:"☀️"},
+    1:{label:"Mostly clear", icon:"🌤️"},
+    2:{label:"Partly cloudy", icon:"⛅"},
+    3:{label:"Overcast", icon:"☁️"},
+    45:{label:"Fog", icon:"🌫️"},
+    48:{label:"Freezing fog", icon:"🌫️"},
+    51:{label:"Light drizzle", icon:"🌦️"},
+    53:{label:"Drizzle", icon:"🌦️"},
+    55:{label:"Heavy drizzle", icon:"🌧️"},
+    56:{label:"Freezing drizzle", icon:"🌧️"},
+    57:{label:"Freezing drizzle", icon:"🌧️"},
+    61:{label:"Light rain", icon:"🌦️"},
+    63:{label:"Rain", icon:"🌧️"},
+    65:{label:"Heavy rain", icon:"🌧️"},
+    66:{label:"Freezing rain", icon:"🌧️"},
+    67:{label:"Freezing rain", icon:"🌧️"},
+    71:{label:"Light snow", icon:"🌨️"},
+    73:{label:"Snow", icon:"🌨️"},
+    75:{label:"Heavy snow", icon:"❄️"},
+    77:{label:"Snow grains", icon:"❄️"},
+    80:{label:"Rain showers", icon:"🌦️"},
+    81:{label:"Rain showers", icon:"🌧️"},
+    82:{label:"Heavy rain showers", icon:"⛈️"},
+    85:{label:"Snow showers", icon:"🌨️"},
+    86:{label:"Snow showers", icon:"🌨️"},
+    95:{label:"Thunderstorm", icon:"⛈️"},
+    96:{label:"Thunderstorm, hail", icon:"⛈️"},
+    99:{label:"Thunderstorm, hail", icon:"⛈️"}
+  };
+  function weatherInfo(code){
+    return WEATHER_CODES[code] || {label:"Unknown", icon:"🌡️"};
+  }
+  function dayLabel(dateStr, index){
+    if(index === 0) return "Today";
+    var d = new Date(dateStr + "T00:00:00");
+    return d.toLocaleDateString(undefined, {weekday:"short"});
+  }
+
+  function renderWeather(data){
+    var cur = data.current;
+    var info = weatherInfo(cur.weather_code);
+
+    document.getElementById("weather-widget-icon").textContent = info.icon;
+    document.getElementById("weather-widget-temp").textContent = Math.round(cur.temperature_2m) + "°";
+
+    document.getElementById("weather-now-icon").textContent = info.icon;
+    document.getElementById("weather-now-temp").textContent = Math.round(cur.temperature_2m) + "°F";
+    document.getElementById("weather-now-desc").textContent = info.label;
+
+    document.getElementById("weather-now-details").innerHTML = ""
+      + "<span class=\"weather-now-stat\">Feels like " + Math.round(cur.apparent_temperature) + "°F</span>"
+      + "<span class=\"weather-now-stat\">Humidity " + Math.round(cur.relative_humidity_2m) + "%</span>"
+      + "<span class=\"weather-now-stat\">Wind " + Math.round(cur.wind_speed_10m) + " mph</span>";
+
+    var list = document.getElementById("weather-forecast-list");
+    list.innerHTML = "";
+    data.daily.time.forEach(function(dateStr, i){
+      var dInfo = weatherInfo(data.daily.weather_code[i]);
+      var row = document.createElement("div");
+      row.className = "card weather-day-row";
+      row.innerHTML = "<span class=\"weather-day-name\">" + dayLabel(dateStr, i) + "</span>"
+        + "<span class=\"weather-day-icon\">" + dInfo.icon + "</span>"
+        + "<span class=\"weather-day-desc\">" + dInfo.label + "</span>"
+        + "<span class=\"weather-day-temps\">" + Math.round(data.daily.temperature_2m_max[i]) + "°/" + Math.round(data.daily.temperature_2m_min[i]) + "°</span>";
+      list.appendChild(row);
+    });
+  }
+
+  function loadWeather(){
+    var url = "https://api.open-meteo.com/v1/forecast?latitude=" + WEATHER_LAT + "&longitude=" + WEATHER_LON
+      + "&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code"
+      + "&daily=temperature_2m_max,temperature_2m_min,weather_code"
+      + "&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FDenver&forecast_days=7";
+
+    var controller = ("AbortController" in window) ? new AbortController() : null;
+    var timeoutId = controller ? setTimeout(function(){ controller.abort(); }, 8000) : null;
+
+    fetch(url, controller ? {signal:controller.signal} : {}).then(function(res){
+      if(timeoutId) clearTimeout(timeoutId);
+      if(!res.ok) throw new Error("Weather request failed: " + res.status);
+      return res.json();
+    }).then(renderWeather).catch(function(err){
+      if(timeoutId) clearTimeout(timeoutId);
+      console.error("Weather load failed:", err);
+      document.getElementById("weather-widget-icon").textContent = "🌡️";
+      document.getElementById("weather-widget-temp").textContent = "N/A";
+      document.getElementById("weather-now-desc").textContent = "Weather unavailable right now — check back when you have a signal.";
+    });
+  }
 
   drawActivities();
   drawFood();
@@ -1434,6 +1619,7 @@
   drawHistory();
   drawTimeEntry();
   drawFavorites();
+  loadWeather();
 
 })();
 </script>
