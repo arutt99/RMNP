@@ -610,10 +610,6 @@
     gap:6px;
     align-items:center;
   }
-  .itin-slot-drop.drag-over{
-    border-color:var(--accent);
-    background:var(--accent-soft);
-  }
   .itin-slot-empty{
     font-size:12px;
     color:var(--text-faint);
@@ -654,33 +650,54 @@
     color:var(--text-faint);
     margin:-4px 0 14px;
   }
-  .drag-handle{
-    flex:0 0 auto;
-    background:none;
-    border:none;
-    padding:2px 4px;
-    font-size:17px;
-    line-height:1;
-    color:var(--text-faint);
-    cursor:grab;
-    touch-action:none;
+
+  /* ---------- Add-to-itinerary picker (on cards) ---------- */
+  .itin-add-row{
+    margin-top:11px;
+    padding-top:11px;
+    border-top:1px solid var(--border);
   }
-  .drag-handle:active{cursor:grabbing;color:var(--accent);}
-  .drag-ghost{
-    position:fixed;
-    z-index:1000;
-    pointer-events:none;
-    background:var(--bg-elev-2);
-    border:1px solid var(--accent);
+  .itin-add-select{
+    width:100%;
+    background:var(--bg);
+    border:1px solid var(--accent-dim);
     border-radius:20px;
-    padding:6px 13px;
-    font-size:12.5px;
+    color:var(--accent);
+    font-family:var(--sans);
+    font-size:13px;
+    font-weight:600;
+    padding:9px 14px;
+    cursor:pointer;
+    -webkit-appearance:none;
+    appearance:none;
+  }
+  .itin-add-select:active{background:var(--accent-soft);}
+
+  .itin-toast{
+    position:fixed;
+    left:50%;
+    bottom:88px;
+    transform:translateX(-50%) translateY(12px);
+    background:var(--bg-elev-2);
+    border:1px solid var(--accent-dim);
+    border-radius:20px;
+    padding:9px 16px;
+    font-size:13px;
     font-weight:600;
     color:var(--text);
-    box-shadow:0 6px 18px rgba(0,0,0,0.4);
-    opacity:0.95;
-    transform:translate(-50%,-50%);
+    box-shadow:0 8px 20px rgba(0,0,0,0.4);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.2s ease, transform 0.2s ease;
+    z-index:50;
     white-space:nowrap;
+    max-width:calc(100% - 32px);
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .itin-toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
   }
 
   /* ---------- Bottom tab bar ---------- */
@@ -797,7 +814,7 @@
   <section id="tab-favorites" class="tab-panel">
     <p class="section-title">Trip Itinerary</p>
     <p class="section-sub">Sat, Jul 25 &ndash; Sat, Aug 1</p>
-    <p class="itin-hint">Drag the &#10021; handle on a favorite below onto a day/time slot to plan your trip. Swipe the card row to move between days.</p>
+    <p class="itin-hint">Use the &#128197; Add to itinerary picker on any activity, food, or wildlife card to schedule it here. Swipe the card row, or tap a date above, to move between days.</p>
     <div class="itin-datestrip" id="itin-datestrip"></div>
     <div class="itin-carousel" id="itin-carousel"></div>
 
@@ -830,6 +847,8 @@
   </section>
 
 </main>
+
+<div class="itin-toast" id="itin-toast"></div>
 
 <nav class="tab-bar" id="tab-bar">
   <button data-tab="tab-activities" class="active">
@@ -1292,7 +1311,7 @@
     }
   }
 
-  function buildCard(item, showDragHandle){
+  function buildCard(item){
     var card = document.createElement("div");
     card.className = "card";
 
@@ -1304,10 +1323,6 @@
 
     var actions = document.createElement("div");
     actions.className = "card-top-actions";
-
-    if(showDragHandle){
-      actions.appendChild(buildDragHandle(item));
-    }
 
     var badge = document.createElement("span");
     badge.className = "dist-badge";
@@ -1378,10 +1393,11 @@
     }
 
     card.appendChild(links);
+    card.appendChild(buildItineraryPicker(item));
     return card;
   }
 
-  function buildAnimalCard(item, showDragHandle){
+  function buildAnimalCard(item){
     var card = document.createElement("div");
     card.className = "card animal-card";
 
@@ -1403,9 +1419,6 @@
 
     var actions = document.createElement("div");
     actions.className = "card-top-actions";
-    if(showDragHandle){
-      actions.appendChild(buildDragHandle(item));
-    }
 
     var starBtn = document.createElement("button");
     starBtn.type = "button";
@@ -1464,6 +1477,7 @@
     }
 
     if(links.children.length) body.appendChild(links);
+    body.appendChild(buildItineraryPicker(item));
 
     card.appendChild(body);
     return card;
@@ -1670,71 +1684,62 @@
     renderInfoBlocks("timeentry-info-list", TIME_ENTRY_INFO);
   }
 
-  /* ============ ITINERARY drag & drop + render ============ */
-  var activeDrag = null; // { ghost, item, hoveredSlot }
+  /* ============ ITINERARY add-to-day picker + render ============ */
+  var toastTimer = null;
+  function showItinToast(message){
+    var toast = document.getElementById("itin-toast");
+    if(!toast) return;
+    toast.textContent = message;
+    toast.classList.add("show");
+    if(toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toast.classList.remove("show"); }, 1800);
+  }
 
-  function buildDragHandle(item){
-    var handle = document.createElement("button");
-    handle.type = "button";
-    handle.className = "drag-handle";
-    handle.setAttribute("aria-label", "Drag " + item.name + " to a day");
-    handle.textContent = "⠿";
-    handle.addEventListener("pointerdown", function(ev){
-      startDrag(ev, item);
+  function refreshItineraryIfActive(){
+    var favTab = document.getElementById("tab-favorites");
+    if(favTab && favTab.classList.contains("active")) renderItinerary();
+  }
+
+  function buildItineraryPicker(item){
+    var row = document.createElement("div");
+    row.className = "itin-add-row";
+
+    var select = document.createElement("select");
+    select.className = "itin-add-select";
+    select.setAttribute("aria-label", "Add " + item.name + " to a day and time");
+
+    var placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "📅 Add to itinerary…";
+    placeholder.disabled = true;
+    placeholder.selected = true;
+    select.appendChild(placeholder);
+
+    TRIP_DAYS.forEach(function(day){
+      var group = document.createElement("optgroup");
+      group.label = day.dow + ", " + day.month + " " + day.num;
+      ITIN_SLOTS.forEach(function(slotName){
+        var opt = document.createElement("option");
+        opt.value = day.date + "|" + slotName;
+        opt.textContent = slotName;
+        group.appendChild(opt);
+      });
+      select.appendChild(group);
     });
-    return handle;
-  }
 
-  function startDrag(ev, item){
-    ev.preventDefault();
-    var ghost = document.createElement("div");
-    ghost.className = "drag-ghost";
-    ghost.textContent = item.name;
-    document.body.appendChild(ghost);
-    positionGhost(ghost, ev.clientX, ev.clientY);
+    select.addEventListener("change", function(){
+      var parts = select.value.split("|");
+      if(parts.length !== 2) return;
+      var date = parts[0], slotName = parts[1];
+      addToItinerary(date, slotName, item.id);
+      var day = TRIP_DAYS.filter(function(d){ return d.date === date; })[0];
+      showItinToast("Added “" + item.name + "” to " + day.dow + " " + day.month + " " + day.num + " – " + slotName);
+      select.value = "";
+      refreshItineraryIfActive();
+    });
 
-    activeDrag = { ghost: ghost, item: item, hoveredSlot: null };
-
-    document.addEventListener("pointermove", onDragMove);
-    document.addEventListener("pointerup", onDragEnd);
-    document.addEventListener("pointercancel", onDragEnd);
-  }
-
-  function positionGhost(ghost, x, y){
-    ghost.style.left = x + "px";
-    ghost.style.top = y + "px";
-  }
-
-  function onDragMove(ev){
-    if(!activeDrag) return;
-    positionGhost(activeDrag.ghost, ev.clientX, ev.clientY);
-
-    activeDrag.ghost.style.display = "none";
-    var under = document.elementFromPoint(ev.clientX, ev.clientY);
-    activeDrag.ghost.style.display = "";
-
-    var slot = under ? under.closest(".itin-slot-drop") : null;
-    if(slot !== activeDrag.hoveredSlot){
-      if(activeDrag.hoveredSlot) activeDrag.hoveredSlot.classList.remove("drag-over");
-      if(slot) slot.classList.add("drag-over");
-      activeDrag.hoveredSlot = slot;
-    }
-  }
-
-  function onDragEnd(ev){
-    if(!activeDrag) return;
-    document.removeEventListener("pointermove", onDragMove);
-    document.removeEventListener("pointerup", onDragEnd);
-    document.removeEventListener("pointercancel", onDragEnd);
-
-    var slot = activeDrag.hoveredSlot;
-    if(slot){
-      slot.classList.remove("drag-over");
-      addToItinerary(slot.getAttribute("data-date"), slot.getAttribute("data-slot"), activeDrag.item.id);
-      renderItinerary();
-    }
-    activeDrag.ghost.remove();
-    activeDrag = null;
+    row.appendChild(select);
+    return row;
   }
 
   function updateCarouselFade(carousel){
@@ -1880,21 +1885,21 @@
       h1.className = "section-title";
       h1.textContent = "Activities";
       container.appendChild(h1);
-      favActivities.forEach(function(item){ container.appendChild(buildCard(item, true)); });
+      favActivities.forEach(function(item){ container.appendChild(buildCard(item)); });
     }
     if(favFood.length){
       var h2 = document.createElement("p");
       h2.className = "section-title";
       h2.textContent = "Food & Drink";
       container.appendChild(h2);
-      favFood.forEach(function(item){ container.appendChild(buildCard(item, true)); });
+      favFood.forEach(function(item){ container.appendChild(buildCard(item)); });
     }
     if(favWildlife.length){
       var h3 = document.createElement("p");
       h3.className = "section-title";
       h3.textContent = "Wildlife";
       container.appendChild(h3);
-      favWildlife.forEach(function(item){ container.appendChild(buildAnimalCard(item, true)); });
+      favWildlife.forEach(function(item){ container.appendChild(buildAnimalCard(item)); });
     }
   }
 
