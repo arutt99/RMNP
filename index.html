@@ -292,8 +292,8 @@
   .card.animal-card{padding:0;overflow:hidden;}
   .animal-card-img{
     width:100%;
-    height:170px;
-    object-fit:cover;
+    height:210px;
+    object-fit:contain;
     display:block;
     background:var(--bg-elev-2);
   }
@@ -858,7 +858,7 @@
   <!-- FAVORITES TAB -->
   <section id="tab-favorites" class="tab-panel">
     <p class="section-title">Trip Itinerary</p>
-    <p class="itin-hint">Use the &#128197; Add to itinerary picker on any activity, food, or wildlife card to schedule it here. Swipe the card row, or tap a date above, to move between days.</p>
+    <p class="itin-hint">Use the &#128197; Add to itinerary picker on any activity or food card to schedule it here. Swipe the card row, or tap a date above, to move between days.</p>
     <div class="itin-datestrip" id="itin-datestrip"></div>
     <div class="itin-carousel" id="itin-carousel"></div>
 
@@ -1570,7 +1570,6 @@
     }
 
     if(links.children.length) body.appendChild(links);
-    body.appendChild(buildItineraryPicker(item));
 
     card.appendChild(body);
     return card;
