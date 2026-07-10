@@ -33,11 +33,22 @@
     color:var(--text);
     font-family:var(--sans);
     -webkit-font-smoothing:antialiased;
-    padding-bottom:74px;
+    padding-bottom:88px;
     min-height:100vh;
   }
   a{color:var(--accent);text-decoration:none;}
   a:active{opacity:0.7;}
+
+  /* ---------- Loading skeleton ---------- */
+  @keyframes skel-pulse{
+    0%,100%{opacity:0.55;}
+    50%{opacity:1;}
+  }
+  .skeleton{
+    display:inline-block;
+    background:var(--bg-elev-2);
+    animation:skel-pulse 1.3s ease-in-out infinite;
+  }
 
   /* ---------- Header ---------- */
   header.app-header{
@@ -77,8 +88,19 @@
     z-index:1;
   }
   header.app-header .stay-line a{
-    border-bottom:1px solid var(--accent-dim);
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    min-height:30px;
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:5px 12px 5px 10px;
+    color:var(--accent);
+    font-weight:700;
   }
+  header.app-header .stay-line a:active{background:var(--bg-elev-2);}
+  header.app-header .stay-line a svg{width:14px;height:14px;stroke:var(--accent);fill:none;flex:0 0 auto;}
   header.app-header .eyebrow, header.app-header h1{
     padding-right:74px;
   }
@@ -97,8 +119,12 @@
     z-index:2;
   }
   .weather-widget:active{background:var(--bg-elev-2);}
+  .weather-widget.is-error{border-color:var(--rust);}
   .weather-widget-icon{font-size:17px;line-height:1;}
+  .weather-widget-icon.skeleton{width:17px;height:17px;border-radius:50%;vertical-align:middle;}
   .weather-widget-temp{font-size:13.5px;font-weight:700;color:var(--text);}
+  .weather-widget-temp.skeleton{width:26px;height:12px;vertical-align:middle;}
+  .weather-widget.is-error .weather-widget-temp{color:var(--rust);}
 
   /* ---------- Tabs content ---------- */
   main{padding:16px 14px 28px;max-width:640px;margin:0 auto;}
@@ -110,8 +136,12 @@
     font-size:19px;
     color:var(--text);
     margin:22px 0 10px;
-    padding-bottom:6px;
+    padding:8px 0 6px;
     border-bottom:1px solid var(--border);
+    background:var(--bg);
+    position:sticky;
+    top:0;
+    z-index:6;
   }
   .section-title:first-child{margin-top:2px;}
   .section-sub{
@@ -402,6 +432,7 @@
     margin-bottom:12px;
   }
   .weather-now-icon{font-size:44px;line-height:1;flex:0 0 auto;}
+  .weather-now-icon.skeleton{width:40px;height:40px;border-radius:50%;}
   .weather-now-temp{
     font-family:var(--serif);
     font-size:30px;
@@ -409,7 +440,11 @@
     color:var(--text);
     line-height:1.15;
   }
+  .weather-now-temp.skeleton{width:86px;height:24px;}
   .weather-now-desc{font-size:14px;color:var(--text-dim);margin-top:2px;}
+  .weather-now-desc.skeleton{width:130px;height:12px;margin-top:6px;}
+  .weather-now-desc.is-error{color:var(--rust);font-weight:600;}
+  .weather-updated{font-size:11px;color:var(--text-faint);margin-top:5px;}
   .weather-now-details{
     display:flex;
     flex-wrap:wrap;
@@ -418,41 +453,66 @@
     border-top:1px solid var(--border);
   }
   .weather-now-stat{font-size:12.5px;color:var(--text-dim);}
-  .weather-day-row{
+
+  /* ---------- 7-day forecast (horizontal scroll cards) ---------- */
+  .weather-forecast-row{
     display:flex;
-    align-items:center;
     gap:10px;
-    padding:11px 15px;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    padding:2px 2px 12px;
+    margin:0 -2px;
   }
-  .weather-day-name{
-    flex:0 0 60px;
+  .weather-day-card{
+    flex:0 0 82px;
+    scroll-snap-align:start;
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:12px 6px 10px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:5px;
+    text-align:center;
+  }
+  .weather-day-card.today{
+    background:var(--accent-soft);
+    border-color:var(--accent-dim);
+  }
+  .weather-day-card .weather-day-name{
     font-family:var(--serif);
     font-weight:700;
-    font-size:14px;
+    font-size:13px;
     color:var(--text);
   }
-  .weather-day-icon{font-size:20px;flex:0 0 auto;}
-  .weather-day-desc{flex:1;font-size:13px;color:var(--text-dim);}
-  .weather-day-temps{
-    flex:0 0 auto;
-    font-size:13.5px;
-    font-weight:600;
+  .weather-day-card .weather-day-icon{font-size:22px;}
+  .weather-day-card .weather-day-temps{
+    font-size:13px;
+    font-weight:700;
     color:var(--accent);
     white-space:nowrap;
+  }
+  .weather-day-card .weather-day-precip{
+    font-size:10.5px;
+    color:var(--text-faint);
   }
 
   /* ---------- Back button (Activities detail screen) ---------- */
   .back-btn{
     display:inline-flex;
     align-items:center;
-    gap:5px;
+    gap:6px;
+    min-height:44px;
     background:none;
     border:none;
     color:var(--accent);
     font-family:var(--sans);
     font-size:13.5px;
     font-weight:600;
-    padding:2px 2px 16px;
+    padding:0 4px;
+    margin:0 -4px 2px;
     cursor:pointer;
   }
 
@@ -502,6 +562,7 @@
     border-left:2px solid var(--accent-dim);
   }
   .fact-line:last-child{margin-bottom:0;}
+  .ext-link-icon{width:11px;height:11px;stroke:currentColor;fill:none;display:inline-block;vertical-align:-1px;margin-left:2px;}
 
   /* ---------- Time Entry table ---------- */
   .te-legend{
@@ -762,6 +823,7 @@
   }
   nav.tab-bar button{
     flex:1;
+    min-height:52px;
     background:none;
     border:none;
     color:var(--text-faint);
@@ -769,29 +831,43 @@
     font-size:11px;
     font-weight:600;
     letter-spacing:0.02em;
-    padding:9px 2px 8px;
+    padding:8px 2px 7px;
     display:flex;
     flex-direction:column;
     align-items:center;
+    justify-content:center;
     gap:4px;
     cursor:pointer;
+    position:relative;
   }
-  nav.tab-bar button svg{width:21px;height:21px;stroke:var(--text-faint);fill:none;}
-  nav.tab-bar button.active{color:var(--accent);}
+  nav.tab-bar button svg{width:21px;height:21px;stroke:var(--text-faint);fill:none;transition:stroke 0.15s ease;}
+  nav.tab-bar button .tab-icon-wrap{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:40px;
+    height:26px;
+    border-radius:14px;
+    transition:background 0.15s ease;
+  }
+  nav.tab-bar button.active{color:var(--accent);font-weight:700;}
   nav.tab-bar button.active svg{stroke:var(--accent);}
+  nav.tab-bar button.active .tab-icon-wrap{background:var(--accent-soft);}
 </style>
 </head>
 <body>
 
 <header class="app-header">
   <button class="weather-widget" id="weather-widget" type="button" aria-label="View detailed weather forecast">
-    <span class="weather-widget-icon" id="weather-widget-icon">&#9925;</span>
-    <span class="weather-widget-temp" id="weather-widget-temp">&ndash;&deg;</span>
+    <span class="weather-widget-icon skeleton" id="weather-widget-icon"></span>
+    <span class="weather-widget-temp skeleton" id="weather-widget-temp"></span>
   </button>
   <p class="eyebrow">Estes Park &middot; July 2026</p>
   <h1>Rocky Mountain National Park Trip Guide</h1>
-  <p class="stay-line"><a id="stay-map-link" href="#" target="_blank" rel="noopener"><strong>Homebase</strong></a>
-  </p>
+  <p class="stay-line"><a id="stay-map-link" href="#" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 L12 4 L20 11 M6 9 v10 h12 v-10"/></svg>
+    Homebase
+  </a></p>
   <svg class="ridge" viewBox="0 0 400 46" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
     <polygon points="0,46 0,30 40,10 70,26 110,4 150,22 190,8 230,28 270,14 310,30 350,12 400,26 400,46" fill="#3f6b4f"/>
   </svg>
@@ -876,20 +952,21 @@
     <p class="section-sub">Estes Park &amp; Rocky Mountain National Park</p>
     <div class="card weather-now-card">
       <div class="weather-now-top">
-        <span class="weather-now-icon" id="weather-now-icon">&#9925;</span>
+        <span class="weather-now-icon skeleton" id="weather-now-icon"></span>
         <div>
-          <div class="weather-now-temp" id="weather-now-temp">&ndash;&deg;F</div>
-          <div class="weather-now-desc" id="weather-now-desc">Loading&hellip;</div>
+          <div class="weather-now-temp skeleton" id="weather-now-temp"></div>
+          <div class="weather-now-desc skeleton" id="weather-now-desc"></div>
+          <div class="weather-updated" id="weather-updated"></div>
         </div>
       </div>
       <div class="weather-now-details" id="weather-now-details"></div>
     </div>
 
     <p class="section-title">7-Day Forecast</p>
-    <div id="weather-forecast-list"></div>
+    <div class="weather-forecast-row" id="weather-forecast-list"></div>
 
     <p class="section-title">Good to Know</p>
-    <p class="fact-line">Mountain weather changes fast, and conditions in the park &mdash; especially above treeline &mdash; can differ a lot from town. Check the <a href="https://www.nps.gov/romo/planyourvisit/all-about-weather.htm" target="_blank" rel="noopener">NPS weather page</a> before any hike.</p>
+    <p class="fact-line">Mountain weather changes fast, and conditions in the park &mdash; especially above treeline &mdash; can differ a lot from town. Check the <a href="https://www.nps.gov/romo/planyourvisit/all-about-weather.htm" target="_blank" rel="noopener">NPS weather page<svg class="ext-link-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 L17 7 M9 7 h8 v8"/></svg></a> before any hike.</p>
   </section>
 
 </main>
@@ -897,24 +974,24 @@
 <div class="itin-toast" id="itin-toast"></div>
 
 <nav class="tab-bar" id="tab-bar">
-  <button data-tab="tab-activities" class="active">
-    <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20 L9 8 L13 15 L16 10 L21 20 Z"/></svg>
+  <button data-tab="tab-activities" class="active" aria-label="Activities">
+    <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20 L9 8 L13 15 L16 10 L21 20 Z"/></svg></span>
     Activities
   </button>
-  <button data-tab="tab-food">
-    <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3 v7 a2 2 0 0 0 4 0 V3 M9 10 v11 M17 3 c-2 0-3 2-3 5 s1 4 3 4 v9"/></svg>
+  <button data-tab="tab-food" aria-label="Food">
+    <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3 v7 a2 2 0 0 0 4 0 V3 M9 10 v11 M17 3 c-2 0-3 2-3 5 s1 4 3 4 v9"/></svg></span>
     Food
   </button>
-  <button data-tab="tab-wildlife">
-    <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="13" r="4"/><circle cx="16" cy="13" r="4"/><path d="M8 9 L9 4 L15 4 L16 9 M8 13 h8"/></svg>
+  <button data-tab="tab-wildlife" aria-label="Wildlife">
+    <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="13" r="4"/><circle cx="16" cy="13" r="4"/><path d="M8 9 L9 4 L15 4 L16 9 M8 13 h8"/></svg></span>
     Wildlife
   </button>
-  <button data-tab="tab-park">
-    <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 L10 6 L13 12 L15 9 L20 20 Z M10 6 L11.5 3 L13 6"/></svg>
+  <button data-tab="tab-park" aria-label="Park Info">
+    <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 L10 6 L13 12 L15 9 L20 20 Z M10 6 L11.5 3 L13 6"/></svg></span>
     Park Info
   </button>
-  <button data-tab="tab-favorites">
-    <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 l3.09 6.26 6.91 1.01 -5 4.87 1.18 6.88 -6.18 -3.25 -6.18 3.25 1.18 -6.88 -5 -4.87 6.91 -1.01 Z"/></svg>
+  <button data-tab="tab-favorites" aria-label="Favorites">
+    <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 l3.09 6.26 6.91 1.01 -5 4.87 1.18 6.88 -6.18 -3.25 -6.18 3.25 1.18 -6.88 -5 -4.87 6.91 -1.01 Z"/></svg></span>
     Favorites
   </button>
 </nav>
@@ -2064,40 +2141,64 @@
     return d.toLocaleDateString(undefined, {weekday:"short"});
   }
 
+  function clearSkel(el){ el.classList.remove("skeleton"); }
+
+  var weatherLastUpdated = null;
+  function updateWeatherTimestamp(){
+    var el = document.getElementById("weather-updated");
+    if(!el || !weatherLastUpdated) return;
+    var mins = Math.round((Date.now() - weatherLastUpdated) / 60000);
+    el.textContent = mins < 1 ? "Updated just now" : "Updated " + mins + " min" + (mins === 1 ? "" : "s") + " ago";
+  }
+
   function renderWeather(data){
     var cur = data.current;
     var info = weatherInfo(cur.weather_code);
 
-    document.getElementById("weather-widget-icon").textContent = info.icon;
-    document.getElementById("weather-widget-temp").textContent = Math.round(cur.temperature_2m) + "°";
+    var widgetIcon = document.getElementById("weather-widget-icon");
+    var widgetTemp = document.getElementById("weather-widget-temp");
+    var nowIcon = document.getElementById("weather-now-icon");
+    var nowTemp = document.getElementById("weather-now-temp");
+    var nowDesc = document.getElementById("weather-now-desc");
 
-    document.getElementById("weather-now-icon").textContent = info.icon;
-    document.getElementById("weather-now-temp").textContent = Math.round(cur.temperature_2m) + "°F";
-    document.getElementById("weather-now-desc").textContent = info.label;
+    document.getElementById("weather-widget").classList.remove("is-error");
+    [widgetIcon, widgetTemp, nowIcon, nowTemp, nowDesc].forEach(clearSkel);
+    nowDesc.classList.remove("is-error");
+
+    widgetIcon.textContent = info.icon;
+    widgetTemp.textContent = Math.round(cur.temperature_2m) + "°";
+
+    nowIcon.textContent = info.icon;
+    nowTemp.textContent = Math.round(cur.temperature_2m) + "°F";
+    nowDesc.textContent = info.label;
 
     document.getElementById("weather-now-details").innerHTML = ""
       + "<span class=\"weather-now-stat\">Feels like " + Math.round(cur.apparent_temperature) + "°F</span>"
       + "<span class=\"weather-now-stat\">Humidity " + Math.round(cur.relative_humidity_2m) + "%</span>"
       + "<span class=\"weather-now-stat\">Wind " + Math.round(cur.wind_speed_10m) + " mph</span>";
 
+    weatherLastUpdated = Date.now();
+    updateWeatherTimestamp();
+
     var list = document.getElementById("weather-forecast-list");
     list.innerHTML = "";
     data.daily.time.forEach(function(dateStr, i){
       var dInfo = weatherInfo(data.daily.weather_code[i]);
-      var row = document.createElement("div");
-      row.className = "card weather-day-row";
-      row.innerHTML = "<span class=\"weather-day-name\">" + dayLabel(dateStr, i) + "</span>"
+      var precip = data.daily.precipitation_probability_max ? data.daily.precipitation_probability_max[i] : null;
+      var card = document.createElement("div");
+      card.className = "weather-day-card" + (i === 0 ? " today" : "");
+      card.innerHTML = "<span class=\"weather-day-name\">" + dayLabel(dateStr, i) + "</span>"
         + "<span class=\"weather-day-icon\">" + dInfo.icon + "</span>"
-        + "<span class=\"weather-day-desc\">" + dInfo.label + "</span>"
-        + "<span class=\"weather-day-temps\">" + Math.round(data.daily.temperature_2m_max[i]) + "°/" + Math.round(data.daily.temperature_2m_min[i]) + "°</span>";
-      list.appendChild(row);
+        + "<span class=\"weather-day-temps\">" + Math.round(data.daily.temperature_2m_max[i]) + "°/" + Math.round(data.daily.temperature_2m_min[i]) + "°</span>"
+        + (precip !== null ? "<span class=\"weather-day-precip\">💧" + Math.round(precip) + "%</span>" : "");
+      list.appendChild(card);
     });
   }
 
   function loadWeather(){
     var url = "https://api.open-meteo.com/v1/forecast?latitude=" + WEATHER_LAT + "&longitude=" + WEATHER_LON
       + "&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code"
-      + "&daily=temperature_2m_max,temperature_2m_min,weather_code"
+      + "&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max"
       + "&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FDenver&forecast_days=7";
 
     var controller = ("AbortController" in window) ? new AbortController() : null;
@@ -2110,11 +2211,23 @@
     }).then(renderWeather).catch(function(err){
       if(timeoutId) clearTimeout(timeoutId);
       console.error("Weather load failed:", err);
-      document.getElementById("weather-widget-icon").textContent = "🌡️";
-      document.getElementById("weather-widget-temp").textContent = "N/A";
-      document.getElementById("weather-now-desc").textContent = "Weather unavailable right now — check back when you have a signal.";
+      var widgetIcon = document.getElementById("weather-widget-icon");
+      var widgetTemp = document.getElementById("weather-widget-temp");
+      var nowIcon = document.getElementById("weather-now-icon");
+      var nowTemp = document.getElementById("weather-now-temp");
+      var nowDesc = document.getElementById("weather-now-desc");
+      [widgetIcon, widgetTemp, nowIcon, nowTemp, nowDesc].forEach(clearSkel);
+      document.getElementById("weather-widget").classList.add("is-error");
+      widgetIcon.textContent = "⚠️";
+      widgetTemp.textContent = "N/A";
+      nowIcon.textContent = "⚠️";
+      nowTemp.textContent = "--°F";
+      nowDesc.textContent = "Weather unavailable right now — check back when you have a signal.";
+      nowDesc.classList.add("is-error");
     });
   }
+
+  setInterval(updateWeatherTimestamp, 30000);
 
   drawActivities();
   drawFood();
