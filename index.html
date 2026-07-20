@@ -86,6 +86,9 @@
     margin:0;
     position:relative;
     z-index:1;
+    display:flex;
+    align-items:center;
+    gap:8px;
   }
   header.app-header .stay-line a{
     display:inline-flex;
@@ -101,6 +104,46 @@
   }
   header.app-header .stay-line a:active{background:var(--bg-elev-2);}
   header.app-header .stay-line a svg{width:14px;height:14px;stroke:var(--accent);fill:none;flex:0 0 auto;}
+  header.app-header .origin-toggle{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    flex:0 0 auto;
+    height:30px;
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:3px;
+    gap:2px;
+  }
+  header.app-header .origin-toggle-thumb{
+    position:absolute;
+    top:3px;
+    left:3px;
+    width:26px;
+    height:22px;
+    background:var(--accent-soft);
+    border:1px solid var(--accent-dim);
+    border-radius:16px;
+    transition:transform 0.2s ease;
+  }
+  header.app-header .origin-toggle.mode-current .origin-toggle-thumb{transform:translateX(28px);}
+  header.app-header .origin-toggle-opt{
+    position:relative;
+    z-index:1;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:26px;
+    height:22px;
+    background:none;
+    border:none;
+    padding:0;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  header.app-header .origin-toggle-opt svg{width:14px;height:14px;stroke:var(--text-faint);fill:none;transition:stroke 0.15s ease;}
+  header.app-header .origin-toggle-opt[aria-pressed="true"] svg{stroke:var(--accent);}
   header.app-header .eyebrow, header.app-header h1{
     padding-right:74px;
   }
@@ -864,10 +907,21 @@
   </button>
   <p class="eyebrow">Estes Park &middot; July 2026</p>
   <h1>Rocky Mountain National Park Trip Guide</h1>
-  <p class="stay-line"><a id="stay-map-link" href="#" target="_blank" rel="noopener">
-    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 L12 4 L20 11 M6 9 v10 h12 v-10"/></svg>
-    Homebase
-  </a></p>
+  <div class="stay-line">
+    <a id="stay-map-link" href="#" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 L12 4 L20 11 M6 9 v10 h12 v-10"/></svg>
+      Homebase
+    </a>
+    <div class="origin-toggle" id="origin-toggle" role="group">
+      <span class="origin-toggle-thumb" aria-hidden="true"></span>
+      <button type="button" class="origin-toggle-opt" data-mode="homebase" title="Directions from Homebase" aria-pressed="true">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 L12 4 L20 11 M6 9 v10 h12 v-10"/></svg>
+      </button>
+      <button type="button" class="origin-toggle-opt" data-mode="current" title="Directions from current location" aria-pressed="false">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2 v3.5 M12 18.5 v3.5 M2 12 h3.5 M18.5 12 h3.5"/></svg>
+      </button>
+    </div>
+  </div>
   <svg class="ridge" viewBox="0 0 400 46" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
     <polygon points="0,46 0,30 40,10 70,26 110,4 150,22 190,8 230,28 270,14 310,30 350,12 400,26 400,46" fill="#3f6b4f"/>
   </svg>
@@ -1001,14 +1055,56 @@
 
   var ORIGIN = "40.382222,-105.545111";
 
+  /* ============ DIRECTIONS ORIGIN (Homebase vs Current Location) ============ */
+  var ORIGIN_MODE_KEY = "rmnp-origin-mode";
+
+  function getOriginMode(){
+    try{
+      return localStorage.getItem(ORIGIN_MODE_KEY) === "current" ? "current" : "homebase";
+    }catch(e){ return "homebase"; }
+  }
+  function setOriginMode(mode){
+    try{ localStorage.setItem(ORIGIN_MODE_KEY, mode); }catch(e){}
+  }
+
   function mapsDirUrl(destination){
-    return "https://www.google.com/maps/dir/?api=1&origin=" + encodeURIComponent(ORIGIN) + "&destination=" + encodeURIComponent(destination);
+    var url = "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(destination);
+    if(getOriginMode() !== "current"){
+      url += "&origin=" + encodeURIComponent(ORIGIN);
+    }
+    return url;
   }
   function mapsSearchUrl(destination){
     return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(destination);
   }
 
   document.getElementById("stay-map-link").href = mapsSearchUrl(ORIGIN);
+
+  var originToggleEl = document.getElementById("origin-toggle");
+  var originToggleOpts = originToggleEl.querySelectorAll(".origin-toggle-opt");
+  function refreshOriginToggleUI(){
+    var mode = getOriginMode();
+    originToggleEl.classList.toggle("mode-current", mode === "current");
+    originToggleOpts.forEach(function(btn){
+      btn.setAttribute("aria-pressed", btn.dataset.mode === mode ? "true" : "false");
+    });
+  }
+  originToggleOpts.forEach(function(btn){
+    btn.addEventListener("click", function(){
+      setOriginMode(btn.dataset.mode);
+      refreshOriginToggleUI();
+    });
+  });
+  refreshOriginToggleUI();
+
+  // Directions links store their destination and are resolved to the current
+  // origin mode at click time, so toggling Homebase/Current Location updates
+  // links that were already rendered before the toggle was flipped.
+  document.addEventListener("click", function(e){
+    var a = e.target.closest ? e.target.closest("a.dir-link") : null;
+    if(!a || !a.dataset.dest) return;
+    a.href = mapsDirUrl(a.dataset.dest);
+  });
 
   /* ============ DATA ============ */
   // dist = approx driving miles from the cabin (Homebase)
@@ -1541,7 +1637,9 @@
     links.className = "card-links";
 
     var dirA = document.createElement("a");
-    dirA.href = mapsDirUrl(item.mapQuery || item.name + ", Rocky Mountain National Park, CO");
+    dirA.className = "dir-link";
+    dirA.dataset.dest = item.mapQuery || item.name + ", Rocky Mountain National Park, CO";
+    dirA.href = mapsDirUrl(dirA.dataset.dest);
     dirA.target = "_blank";
     dirA.rel = "noopener";
     dirA.textContent = "Directions →";
@@ -1632,6 +1730,8 @@
 
     if(item.mapQuery){
       var dirA = document.createElement("a");
+      dirA.className = "dir-link";
+      dirA.dataset.dest = item.mapQuery;
       dirA.href = mapsDirUrl(item.mapQuery);
       dirA.target = "_blank";
       dirA.rel = "noopener";
