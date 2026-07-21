@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="theme-color" content="#0f1a24">
+<title>Denver — Trip Guide</title>
+<style>
+  :root{
+    --bg:#0f1a24;
+    --bg-elev:#16232f;
+    --bg-elev-2:#1e3038;
+    --border:#2a3d46;
+    --text:#f0efe9;
+    --text-dim:#a9b6bc;
+    --text-faint:#7d8c92;
+    --accent:#d38a3f;
+    --accent-dim:#a96f38;
+    --accent-soft:rgba(211,138,63,0.13);
+    --rust:#b9502f;
+    --rust-soft:rgba(185,80,47,0.14);
+    --sage:#5f9e8f;
+    --sage-dim:#437468;
+    --sage-soft:rgba(95,158,143,0.14);
+    --radius:10px;
+    --serif:Georgia,'Iowan Old Style','Palatino Linotype',Palatino,serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:88px;
+    min-height:100vh;
+  }
+  a{color:var(--accent);text-decoration:none;}
+  a:active{opacity:0.7;}
+
+  /* ---------- Loading skeleton ---------- */
+  @keyframes skel-pulse{
+    0%,100%{opacity:0.55;}
+    50%{opacity:1;}
+  }
+  .skeleton{
+    display:inline-block;
+    background:var(--bg-elev-2);
+    animation:skel-pulse 1.3s ease-in-out infinite;
+  }
+
+  /* ---------- Header ---------- */
+  header.app-header{
+    position:relative;
+    padding:22px 18px 18px;
+    background:linear-gradient(180deg,#152735 0%,#0f1a24 100%);
+    border-bottom:1px solid var(--border);
+    overflow:hidden;
+  }
+  header.app-header .ridge{
+    position:absolute;left:0;right:0;bottom:-1px;height:46px;
+    opacity:0.35;
+  }
+  header.app-header .eyebrow{
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--accent);
+    font-weight:600;
+    margin:0 0 4px;
+  }
+  header.app-header h1{
+    font-family:var(--serif);
+    font-size:24px;
+    font-weight:700;
+    margin:0 0 6px;
+    letter-spacing:0.01em;
+    color:var(--text);
+    position:relative;
+    z-index:1;
+  }
+  header.app-header .stay-line{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:8px;
+    font-size:13.5px;
+    color:var(--text-dim);
+    margin:0;
+    position:relative;
+    z-index:1;
+  }
+  header.app-header .stay-line a{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    min-height:30px;
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:5px 12px 5px 10px;
+    color:var(--accent);
+    font-weight:700;
+  }
+  header.app-header .stay-line a:active{background:var(--bg-elev-2);}
+  header.app-header .stay-line a svg{width:14px;height:14px;stroke:var(--accent);fill:none;flex:0 0 auto;}
+  .origin-toggle{
+    display:inline-flex;
+    align-items:center;
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:2px;
+    gap:1px;
+  }
+  .origin-toggle-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    min-height:26px;
+    background:none;
+    border:none;
+    border-radius:16px;
+    padding:4px 10px;
+    font-family:var(--sans);
+    font-size:11.5px;
+    font-weight:700;
+    color:var(--text-faint);
+    cursor:pointer;
+  }
+  .origin-toggle-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;flex:0 0 auto;}
+  .origin-toggle-btn.active{background:var(--accent-soft);color:var(--accent);}
+  .origin-toggle-btn:active{background:var(--bg-elev-2);}
+  header.app-header .eyebrow, header.app-header h1{
+    padding-right:74px;
+  }
+  .weather-widget{
+    position:absolute;
+    top:20px;right:16px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:6px 12px 6px 10px;
+    cursor:pointer;
+    font-family:var(--sans);
+    z-index:2;
+  }
+  .weather-widget:active{background:var(--bg-elev-2);}
+  .weather-widget.is-error{border-color:var(--rust);}
+  .weather-widget-icon{font-size:17px;line-height:1;}
+  .weather-widget-icon.skeleton{width:17px;height:17px;border-radius:50%;vertical-align:middle;}
+  .weather-widget-temp{font-size:13.5px;font-weight:700;color:var(--text);}
+  .weather-widget-temp.skeleton{width:26px;height:12px;vertical-align:middle;}
+  .weather-widget.is-error .weather-widget-temp{color:var(--rust);}
+  /* ---------- Cross-guide switch link ---------- */
+  .guide-switch{
+    position:absolute;
+    top:54px;right:16px;
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:5px 11px 5px 9px;
+    font-family:var(--sans);
+    font-size:12px;
+    font-weight:700;
+    color:var(--accent);
+    white-space:nowrap;
+    z-index:2;
+  }
+  .guide-switch:active{background:var(--bg-elev-2);}
+  .guide-switch svg{width:13px;height:13px;stroke:var(--accent);fill:none;flex:0 0 auto;}
+
+  /* ---------- Tabs content ---------- */
+  main{padding:16px 14px 28px;max-width:640px;margin:0 auto;}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  .section-title{
+    font-family:var(--serif);
+    font-size:19px;
+    color:var(--text);
+    margin:22px 0 10px;
+    padding:8px 0 6px;
+    border-bottom:1px solid var(--border);
+    background:var(--bg);
+    position:sticky;
+    top:0;
+    z-index:6;
+  }
+  .section-title:first-child{margin-top:2px;}
+  .section-sub{
+    font-size:12.5px;
+    color:var(--text-faint);
+    margin:-6px 0 14px;
+  }
+
+  /* ---------- Filter chips ---------- */
+  .filter-row{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding:2px 2px 14px;
+    position:sticky;
+    top:0;
+    background:var(--bg);
+    z-index:5;
+  }
+  .chip{
+    flex:0 0 auto;
+    padding:8px 14px;
+    border-radius:20px;
+    border:1px solid var(--border);
+    background:var(--bg-elev);
+    color:var(--text-dim);
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .chip.active{
+    background:var(--accent-soft);
+    border-color:var(--accent-dim);
+    color:var(--accent);
+  }
+
+  /* ---------- Cards ---------- */
+  .card{
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:14px 15px;
+    margin-bottom:10px;
+  }
+  .card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+    margin-bottom:3px;
+  }
+  .card-top h3{
+    font-family:var(--serif);
+    font-size:16.5px;
+    margin:0;
+    color:var(--text);
+    line-height:1.3;
+  }
+  .dist-badge{
+    flex:0 0 auto;
+    font-size:12px;
+    font-weight:700;
+    color:var(--accent);
+    background:var(--accent-soft);
+    border:1px solid var(--accent-dim);
+    border-radius:20px;
+    padding:3px 9px;
+    white-space:nowrap;
+  }
+  .card-top-actions{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex:0 0 auto;
+  }
+  .fav-star{
+    flex:0 0 auto;
+    background:none;
+    border:none;
+    padding:0;
+    font-size:21px;
+    line-height:1;
+    color:var(--text-faint);
+    cursor:pointer;
+  }
+  .fav-star.active{color:var(--accent);}
+  .card-meta{
+    font-size:12px;
+    color:var(--text-faint);
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    font-weight:600;
+    margin:0 0 8px;
+  }
+  .card-rating{
+    font-size:12.5px;
+    color:var(--accent);
+    font-weight:600;
+    margin:0 0 8px;
+  }
+  .card-desc{
+    font-size:14px;
+    line-height:1.5;
+    color:var(--text-dim);
+    margin:0 0 10px;
+  }
+
+  /* ---------- Stat pills & read-more (Activities: trail / venue cards) ---------- */
+  .hike-stats{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin:0 0 9px;
+  }
+  .hike-stat{
+    display:inline-flex;
+    align-items:center;
+    font-size:11.5px;
+    font-weight:700;
+    color:var(--text-dim);
+    background:var(--bg);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:3px 9px;
+    white-space:nowrap;
+  }
+  .hike-stat.difficulty-easy{color:var(--sage);border-color:var(--sage-dim);background:var(--sage-soft);}
+  .hike-stat.difficulty-moderate{color:var(--accent);border-color:var(--accent-dim);background:var(--accent-soft);}
+  .hike-stat.difficulty-hard{color:var(--rust);border-color:var(--rust);background:var(--rust-soft);}
+  .hike-stat.tag-reservation{color:var(--rust);border-color:var(--rust);background:var(--rust-soft);}
+  .hike-stat.tag-free{color:var(--sage);border-color:var(--sage-dim);background:var(--sage-soft);}
+  details.card-more{margin:0 0 10px;}
+  details.card-more summary{
+    list-style:none;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    font-size:13px;
+    font-weight:700;
+    color:var(--accent);
+  }
+  details.card-more summary::-webkit-details-marker{display:none;}
+  details.card-more summary .chev{
+    font-size:11px;
+    transition:transform 0.15s ease;
+  }
+  details.card-more[open] summary .chev{transform:rotate(90deg);}
+  details.card-more summary .more-label::after{content:"Read more";}
+  details.card-more[open] summary .more-label::after{content:"Show less";}
+  details.card-more .more-body{
+    font-size:14px;
+    line-height:1.5;
+    color:var(--text-dim);
+    margin:8px 0 0;
+  }
+  .card-links{
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .card-links a{
+    font-size:13px;
+    font-weight:600;
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+  }
+  .card-links a.secondary{color:var(--text-dim);}
+  .card-links a.secondary:hover{color:var(--accent);}
+  .empty-note{
+    color:var(--text-faint);
+    font-size:13.5px;
+    padding:20px 4px;
+    text-align:center;
+  }
+
+  /* ---------- Neighborhood cards (Neighborhoods tab) ---------- */
+  .card.neighborhood-card{padding:0;overflow:hidden;}
+  .neighborhood-card-img{
+    width:100%;
+    height:210px;
+    object-fit:cover;
+    display:block;
+    background:var(--bg-elev-2);
+  }
+  .neighborhood-card-body{padding:14px 15px;}
+  .spot-line{
+    font-size:13px;
+    line-height:1.5;
+    color:var(--text-dim);
+    background:var(--accent-soft);
+    border-left:2px solid var(--accent-dim);
+    border-radius:0 6px 6px 0;
+    padding:7px 10px;
+    margin:0 0 10px;
+  }
+  .spot-line strong{color:var(--accent);}
+
+  /* ---------- Category group headers (Activities / Food / Neighborhoods tabs) ---------- */
+  .cat-group-header{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin:2px 0 14px;
+    padding-bottom:6px;
+    border-bottom:1px solid var(--border);
+  }
+  .cat-group-header svg{
+    width:18px;height:18px;
+    stroke:var(--accent);
+    fill:none;
+    flex:0 0 auto;
+  }
+  .cat-group-header h2{
+    font-family:var(--serif);
+    font-size:17px;
+    font-weight:700;
+    color:var(--text);
+    margin:0;
+    flex:1;
+  }
+  .cat-group-header .cat-count{
+    font-size:11.5px;
+    font-weight:700;
+    color:var(--text-faint);
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:2px 8px;
+    flex:0 0 auto;
+  }
+
+  /* ---------- Category buttons (landing screens) ---------- */
+  .cat-btn{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    width:100%;
+    text-align:left;
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:14px 15px;
+    margin-bottom:10px;
+    cursor:pointer;
+    font-family:var(--sans);
+  }
+  .cat-btn:active{background:var(--bg-elev-2);}
+  .cat-btn svg{
+    width:22px;height:22px;
+    stroke:var(--accent);
+    fill:none;
+    flex:0 0 auto;
+  }
+  .cat-btn .cat-btn-label{
+    flex:1;
+    font-family:var(--serif);
+    font-size:16.5px;
+    font-weight:700;
+    color:var(--text);
+  }
+  .cat-btn .cat-count{
+    font-size:11.5px;
+    font-weight:700;
+    color:var(--text-faint);
+    background:var(--bg);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:2px 8px;
+    flex:0 0 auto;
+  }
+  .cat-btn .cat-chevron{
+    color:var(--accent);
+    font-size:18px;
+    flex:0 0 auto;
+    line-height:1;
+  }
+  #activities-categories, #food-categories, #neighborhoods-categories{margin-top:-8px;}
+
+  /* ---------- Weather widget detail page ---------- */
+  .weather-now-card{padding:18px 16px;}
+  .weather-now-top{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:12px;
+  }
+  .weather-now-icon{font-size:44px;line-height:1;flex:0 0 auto;}
+  .weather-now-icon.skeleton{width:40px;height:40px;border-radius:50%;}
+  .weather-now-temp{
+    font-family:var(--serif);
+    font-size:30px;
+    font-weight:700;
+    color:var(--text);
+    line-height:1.15;
+  }
+  .weather-now-temp.skeleton{width:86px;height:24px;}
+  .weather-now-desc{font-size:14px;color:var(--text-dim);margin-top:2px;}
+  .weather-now-desc.skeleton{width:130px;height:12px;margin-top:6px;}
+  .weather-now-desc.is-error{color:var(--rust);font-weight:600;}
+  .weather-updated{font-size:11px;color:var(--text-faint);margin-top:5px;}
+  .weather-now-details{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px 18px;
+    padding-top:12px;
+    border-top:1px solid var(--border);
+  }
+  .weather-now-stat{font-size:12.5px;color:var(--text-dim);}
+
+  /* ---------- 7-day forecast (horizontal scroll cards) ---------- */
+  .weather-forecast-row{
+    display:flex;
+    gap:10px;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    padding:2px 2px 12px;
+    margin:0 -2px;
+  }
+  .weather-day-card{
+    flex:0 0 82px;
+    scroll-snap-align:start;
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:12px 6px 10px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:5px;
+    text-align:center;
+  }
+  .weather-day-card.today{
+    background:var(--accent-soft);
+    border-color:var(--accent-dim);
+  }
+  .weather-day-card .weather-day-name{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:13px;
+    color:var(--text);
+  }
+  .weather-day-card .weather-day-icon{font-size:22px;}
+  .weather-day-card .weather-day-temps{
+    font-size:13px;
+    font-weight:700;
+    color:var(--accent);
+    white-space:nowrap;
+  }
+  .weather-day-card .weather-day-precip{
+    font-size:10.5px;
+    color:var(--text-faint);
+  }
+
+  /* ---------- Back button (detail screens) ---------- */
+  .back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    min-height:44px;
+    background:none;
+    border:none;
+    color:var(--accent);
+    font-family:var(--sans);
+    font-size:13.5px;
+    font-weight:600;
+    padding:0 4px;
+    margin:0 -4px 2px;
+    cursor:pointer;
+  }
+
+  /* ---------- Info / accordion (City Info & History tabs) ---------- */
+  details.info-block{
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    margin-bottom:9px;
+    overflow:hidden;
+  }
+  details.info-block summary{
+    list-style:none;
+    cursor:pointer;
+    padding:13px 15px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    font-family:var(--serif);
+    font-size:15.5px;
+    color:var(--text);
+  }
+  details.info-block summary::-webkit-details-marker{display:none;}
+  details.info-block summary .chev{
+    color:var(--accent);
+    font-size:13px;
+    transition:transform 0.15s ease;
+    flex:0 0 auto;
+  }
+  details.info-block[open] summary .chev{transform:rotate(90deg);}
+  details.info-block .info-body{
+    padding:0 15px 15px;
+    font-size:14px;
+    line-height:1.6;
+    color:var(--text-dim);
+  }
+  details.info-block .info-body p{margin:0 0 10px;}
+  details.info-block .info-body p:last-child{margin-bottom:0;}
+  details.info-block .info-body ul{margin:0 0 10px;padding-left:18px;}
+  details.info-block .info-body li{margin-bottom:5px;}
+  details.info-block .info-body a{font-weight:600;border-bottom:1px solid var(--accent-dim);}
+  .fact-line{
+    display:block;
+    margin-bottom:8px;
+    padding-left:14px;
+    border-left:2px solid var(--accent-dim);
+  }
+  .fact-line:last-child{margin-bottom:0;}
+  .ext-link-icon{width:11px;height:11px;stroke:currentColor;fill:none;display:inline-block;vertical-align:-1px;margin-left:2px;}
+
+  /* ---------- Bottom tab bar ---------- */
+  nav.tab-bar{
+    position:fixed;
+    left:0;right:0;bottom:0;
+    display:flex;
+    background:#0c161e;
+    border-top:1px solid var(--border);
+    padding-bottom:env(safe-area-inset-bottom);
+    z-index:20;
+  }
+  nav.tab-bar button{
+    flex:1;
+    min-height:52px;
+    background:none;
+    border:none;
+    color:var(--text-faint);
+    font-family:var(--sans);
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.02em;
+    padding:8px 2px 7px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    cursor:pointer;
+    position:relative;
+  }
+  nav.tab-bar button svg{width:21px;height:21px;stroke:var(--text-faint);fill:none;transition:stroke 0.15s ease;}
+  nav.tab-bar button .tab-icon-wrap{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:40px;
+    height:26px;
+    border-radius:14px;
+    transition:background 0.15s ease;
+  }
+  nav.tab-bar button.active{color:var(--accent);font-weight:700;}
+  nav.tab-bar button.active svg{stroke:var(--accent);}
+  nav.tab-bar button.active .tab-icon-wrap{background:var(--accent-soft);}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <button class="weather-widget" id="weather-widget" type="button" aria-label="View detailed weather forecast">
+    <span class="weather-widget-icon skeleton" id="weather-widget-icon"></span>
+    <span class="weather-widget-temp skeleton" id="weather-widget-temp"></span>
+  </button>
+  <a class="guide-switch" href="index.html" aria-label="Go to RMNP Trip Guide">
+    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12 H5 M11 6 l-6 6 6 6"/></svg>RMNP</a>
+  <p class="eyebrow">Denver, Colorado</p>
+  <h1>Denver Trip Guide</h1>
+  <p class="stay-line">
+    <a id="stay-map-link" href="#" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 L12 4 L20 11 M6 9 v10 h12 v-10"/></svg>
+      Homebase
+    </a>
+    <span class="origin-toggle" id="origin-toggle" role="group" aria-label="Get directions from">
+      <button type="button" class="origin-toggle-btn active" data-mode="homebase" aria-pressed="true">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 L12 4 L20 11 M6 9 v10 h12 v-10"/></svg>
+        Homebase
+      </button>
+      <button type="button" class="origin-toggle-btn" data-mode="current" aria-pressed="false">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><path d="M12 2 v3.5 M12 18.5 v3.5 M2 12 h3.5 M18.5 12 h3.5"/></svg>
+        Current Location
+      </button>
+    </span>
+  </p>
+  <svg class="ridge" viewBox="0 0 400 46" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="0,46 0,34 14,34 14,20 26,20 26,28 40,28 40,12 54,12 54,26 70,26 70,6 84,6 84,30 100,30 100,16 116,16 116,32 132,32 132,22 148,22 148,4 160,4 160,24 178,24 178,14 192,14 192,30 210,30 210,10 224,10 224,26 240,26 240,18 254,18 254,2 268,2 268,20 284,20 284,30 300,30 300,12 316,12 316,24 332,24 332,8 346,8 346,28 362,28 362,16 378,16 378,26 400,26 400,46" fill="#2f4756"/>
+  </svg>
+</header>
+
+<main>
+
+  <!-- ACTIVITIES TAB -->
+  <section id="tab-activities" class="tab-panel active">
+    <div id="activities-categories">
+      <div id="activities-cat-grid"></div>
+    </div>
+    <div id="activities-detail" style="display:none;">
+      <button class="back-btn" id="activities-back">&#8249; All Categories</button>
+      <div class="cat-group-header" id="activities-detail-header"></div>
+      <div id="activities-list"></div>
+    </div>
+  </section>
+
+  <!-- FOOD TAB -->
+  <section id="tab-food" class="tab-panel">
+    <div id="food-categories">
+      <div id="food-cat-grid"></div>
+    </div>
+    <div id="food-detail" style="display:none;">
+      <button class="back-btn" id="food-back">&#8249; All Categories</button>
+      <div class="cat-group-header" id="food-detail-header"></div>
+      <div id="food-list"></div>
+    </div>
+  </section>
+
+  <!-- NEIGHBORHOODS TAB -->
+  <section id="tab-neighborhoods" class="tab-panel">
+    <div id="neighborhoods-categories">
+      <p class="section-sub">Choose an area of the city to browse — what each neighborhood is known for, and a few things worth seeking out there.</p>
+      <div id="neighborhoods-cat-grid"></div>
+    </div>
+    <div id="neighborhoods-detail" style="display:none;">
+      <button class="back-btn" id="neighborhoods-back">&#8249; All Areas</button>
+      <div class="cat-group-header" id="neighborhoods-detail-header"></div>
+      <div id="neighborhoods-list"></div>
+    </div>
+  </section>
+
+  <!-- CITY INFO TAB -->
+  <section id="tab-info" class="tab-panel">
+    <p class="section-title">Denver Basics</p>
+    <p class="section-sub">Practical details for getting around and staying comfortable at altitude.</p>
+    <div id="city-info-list"></div>
+
+    <p class="section-title">History</p>
+    <p class="section-sub">How a gold-rush camp on Cherry Creek became the Mile High City.</p>
+    <div id="history-list"></div>
+  </section>
+
+  <!-- FAVORITES TAB -->
+  <section id="tab-favorites" class="tab-panel">
+    <p class="section-title">Your Favorites</p>
+    <p class="section-sub">Everything you've starred — activities, food, and neighborhoods together.</p>
+    <div id="favorites-list"></div>
+  </section>
+
+  <!-- WEATHER (opened from header widget, not part of the bottom tab bar) -->
+  <section id="tab-weather" class="tab-panel">
+    <button class="back-btn" id="weather-back">&#8249; Back</button>
+    <p class="section-title">Current Conditions</p>
+    <p class="section-sub">Denver, Colorado</p>
+    <div class="card weather-now-card">
+      <div class="weather-now-top">
+        <span class="weather-now-icon skeleton" id="weather-now-icon"></span>
+        <div>
+          <div class="weather-now-temp skeleton" id="weather-now-temp"></div>
+          <div class="weather-now-desc skeleton" id="weather-now-desc"></div>
+          <div class="weather-updated" id="weather-updated"></div>
+        </div>
+      </div>
+      <div class="weather-now-details" id="weather-now-details"></div>
+    </div>
+
+    <p class="section-title">7-Day Forecast</p>
+    <div class="weather-forecast-row" id="weather-forecast-list"></div>
+
+    <p class="section-title">Good to Know</p>
+    <p class="fact-line">Denver's weather can swing fast, and afternoon thunderstorms build often in summer &mdash; especially if you're headed up into the foothills. Check the <a href="https://www.weather.gov/bou/" target="_blank" rel="noopener">NWS Boulder/Denver forecast<svg class="ext-link-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 L17 7 M9 7 h8 v8"/></svg></a> before any day trip to the mountains.</p>
+  </section>
+
+</main>
+
+<nav class="tab-bar" id="tab-bar">
+  <button data-tab="tab-activities" class="active" aria-label="Activities">
+    <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.2 8.8 L12.6 12.6 L8.8 15.2 L11.4 11.4 Z"/></svg></span>
+    Activities
+  </button>
+  <button data-tab="tab-food" aria-label="Food">
+    <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3 v7 a2 2 0 0 0 4 0 V3 M9 10 v11 M17 3 c-2 0-3 2-3 5 s1 4 3 4 v9"/></svg></span>
+    Food
+  </button>
+  <button data-tab="tab-neighborhoods" aria-label="Neighborhoods">
+    <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21 C12 21 5 14 5 9 a7 7 0 0 1 14 0 C19 14 12 21 12 21 Z"/><circle cx="12" cy="9" r="2.4"/></svg></span>
+    Areas
+  </button>
+  <button data-tab="tab-info" aria-label="City Info">
+    <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21 V10 L9 6 V21 M9 12.5 H4 M9 15.5 H4 M9 18.5 H4 M14 21 V4 L20 8 V21 M14 21 H20 M4 21 H20"/></svg></span>
+    City Info
+  </button>
+  <button data-tab="tab-favorites" aria-label="Favorites">
+    <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 l3.09 6.26 6.91 1.01 -5 4.87 1.18 6.88 -6.18 -3.25 -6.18 3.25 1.18 -6.88 -5 -4.87 6.91 -1.01 Z"/></svg></span>
+    Favorites
+  </button>
+</nav>
+
+<script>
+(function(){
+
+  var ORIGIN = "39.765540065774346,-105.06042467883611";
+
+  var ORIGIN_MODE_KEY = "denver-guide-origin-mode";
+  var originMode = "homebase";
+  try{
+    var savedOriginMode = localStorage.getItem(ORIGIN_MODE_KEY);
+    if(savedOriginMode === "current" || savedOriginMode === "homebase") originMode = savedOriginMode;
+  }catch(e){}
+
+  function mapsDirUrl(destination){
+    var url = "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(destination);
+    if(originMode === "homebase") url += "&origin=" + encodeURIComponent(ORIGIN);
+    return url;
+  }
+  function mapsSearchUrl(destination){
+    return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(destination);
+  }
+
+  document.getElementById("stay-map-link").href = mapsSearchUrl(ORIGIN);
+
+  function refreshDirectionLinks(){
+    var links = document.querySelectorAll("a.dir-link");
+    for(var i=0;i<links.length;i++){
+      links[i].href = mapsDirUrl(links[i].dataset.dest);
+    }
+  }
+
+  (function setupOriginToggle(){
+    var btns = document.querySelectorAll(".origin-toggle-btn");
+    for(var i=0;i<btns.length;i++){
+      btns[i].classList.toggle("active", btns[i].dataset.mode === originMode);
+      btns[i].setAttribute("aria-pressed", btns[i].dataset.mode === originMode ? "true" : "false");
+      btns[i].addEventListener("click", function(){
+        var mode = this.dataset.mode;
+        if(mode === originMode) return;
+        originMode = mode;
+        try{ localStorage.setItem(ORIGIN_MODE_KEY, originMode); }catch(e){}
+        for(var j=0;j<btns.length;j++){
+          var active = btns[j].dataset.mode === originMode;
+          btns[j].classList.toggle("active", active);
+          btns[j].setAttribute("aria-pressed", active ? "true" : "false");
+        }
+        refreshDirectionLinks();
+      });
+    }
+  })();
+
+  /* ============ DATA ============ */
+  /* PLACEHOLDER — data arrays below will be filled in from research */
+  var ACTIVITIES = [
+    // ---- Museums & Culture ----
+    { cat:"museums", name:"Denver Art Museum", dist:6, meta:"Art Museum · Golden Triangle", desc:"An angular, Libeskind-designed building holding 70,000+ works with a standout Indigenous Arts of North America wing. General admission runs roughly $22–30 (peak pricing Fri–Sun, free 18 & under); Tuesdays run late until 8pm and are quieter. Timed tickets aren't required for general admission, but blockbuster special exhibits often sell timed slots that can sell out.", mapQuery:"Denver Art Museum, 100 W 14th Ave Pkwy, Denver, CO 80204", link:"https://www.denverartmuseum.org/", linkLabel:"Website", phone:"(720) 865-5000" },
+    { cat:"museums", name:"Denver Museum of Nature & Science", dist:9, meta:"Science & Natural History Museum · City Park", desc:"Dinosaurs, space, gems & minerals, an Egyptian mummy, plus an Infinity Theater and planetarium — easily a full day. The Coors Gems & Minerals hall has been under renovation, so check current exhibits before you go. Advance ticket purchase is recommended and effectively required for popular theater screenings or temporary exhibits.", mapQuery:"Denver Museum of Nature and Science, 2001 Colorado Blvd, Denver, CO 80205", link:"https://www.dmns.org/", linkLabel:"Website", phone:"(303) 370-6000" },
+    { cat:"museums", name:"History Colorado Center", dist:6.5, meta:"History Museum · Downtown", desc:"An interactive dive into Colorado history — Sand Creek exhibits, a walkable 1930s Denver streetscape, and a giant floor map of the state. Open daily 10am–5pm with no strict timed-entry; walk-in general admission is fine outside special events.", mapQuery:"History Colorado Center, 1200 Broadway, Denver, CO 80203", link:"https://www.historycolorado.org/", linkLabel:"Website", phone:"(303) 447-8679" },
+    { cat:"museums", name:"Clyfford Still Museum", dist:6, meta:"Art Museum · Golden Triangle", desc:"A single-artist museum holding the bulk of Abstract Expressionist Clyfford Still's life work — compact, about an hour, and a nice quiet contrast to the Denver Art Museum next door. $15 Colorado resident / $18 non-resident, 17 & under free. Closed Mondays; Friday evenings run to 7pm. No timed entry, but advance online booking is encouraged.", mapQuery:"Clyfford Still Museum, 1250 Bannock St, Denver, CO 80204", link:"https://clyffordstillmuseum.org/", linkLabel:"Website", phone:"(720) 354-4880" },
+    { cat:"museums", name:"Molly Brown House Museum", dist:7, meta:"Historic House Museum · Capitol Hill", desc:"The restored Queen Anne home of Titanic survivor \"the Unsinkable\" Molly Brown, run by Historic Denver. Guided tours only, on a set schedule — book ahead through the museum's online system, and plan to arrive at least an hour before close. Street parking only, tight on weekends.", mapQuery:"Molly Brown House Museum, 1340 Pennsylvania St, Denver, CO 80203", link:"https://mollybrown.org/", linkLabel:"Book a tour", phone:"(303) 832-4092", tag:"reservation" },
+    { cat:"museums", name:"The Kirkland at Denver Art Museum", dist:6, meta:"Art Museum · Golden Triangle", desc:"A densely packed, salon-style collection of Colorado painter Vance Kirkland's work plus a huge trove of 20th-century decorative arts. Formally merged with the Denver Art Museum in October 2024, so one ticket or membership now covers both. An easy add-on to a DAM visit, with shared Golden Triangle parking.", mapQuery:"Kirkland Museum, 1201 Bannock St, Denver, CO 80204", link:"https://www.denverartmuseum.org/en/collection/kirkland", linkLabel:"Website" },
+    { cat:"museums", name:"Black American West Museum & Heritage Center", dist:7.5, meta:"Heritage Museum · Five Points", desc:"A small, meaningful museum on Black cowboys, homesteaders, and pioneers of the West, housed in the former home of Denver's first licensed Black female physician. Very limited hours — Fridays and Saturdays only, 10am–2pm — so plan deliberately, and consider booking ahead for groups.", mapQuery:"Black American West Museum, 3091 California St, Denver, CO 80205", link:"https://www.bawmhc.org/", linkLabel:"Website", phone:"(720) 242-7428" },
+    { cat:"museums", name:"Denver Firefighters Museum", dist:6, meta:"Specialty Museum · Downtown", desc:"A charming museum in a converted 1909 firehouse, with antique engines and hands-on exhibits kids can climb aboard. A quick 45-minute-to-1-hour visit, inexpensive at $10 adult / $8 kids 3–12. Open Tue–Sat 10am–4pm; metered street parking.", mapQuery:"Denver Firefighters Museum, 1326 Tremont Pl, Denver, CO 80204", link:"https://denverfirefightersmuseum.org/", linkLabel:"Website", phone:"(303) 892-1436" },
+    { cat:"museums", name:"Museo de las Americas", dist:7, meta:"Cultural Museum · Art District on Santa Fe", desc:"Denver's dedicated Latin American art and culture museum, intimate in scale with rotating exhibitions. Pairs well with a stroll through the Art District on Santa Fe, especially on First Friday. Closed Mondays; Tue–Fri noon–6pm, weekends noon–5pm.", mapQuery:"Museo de las Americas, 861 Santa Fe Dr, Denver, CO 80204", link:"https://museo.org/", linkLabel:"Website", phone:"(303) 571-4401" },
+    { cat:"museums", name:"Wings Over the Rockies Air & Space Museum", dist:15, meta:"Aerospace Museum · Lowry", desc:"A large hangar museum on the former Lowry Air Force Base site with historic aircraft and spacecraft — worth treating as a half-day trip given the drive. Free, with plentiful on-site parking, unlike most downtown museums. A smaller affiliated annex sits at Centennial Airport with separate, more limited hours.", mapQuery:"Wings Over the Rockies Air & Space Museum, 7711 E Academy Blvd, Denver, CO 80230", link:"https://www.wingsmuseum.org/", linkLabel:"Website", phone:"(303) 360-5360" },
+    // ---- Parks, Gardens & Trails ----
+    { cat:"parks", name:"Sloan's Lake Park", dist:1, meta:"Park · Lake Loop", desc:"Denver's largest lake, with a 2.6-mile paved loop offering skyline and mountain views — practically in the neighborhood from your homebase. Free, open 5am–11pm daily. Street parking and small lots are available; the north beach area gets busy on weekends.", difficulty:"Easy", length:"2.6 mi", routeType:"Loop", tag:"free", mapQuery:"Sloan's Lake Park, 1700 N Sheridan Blvd, Denver, CO 80214", link:"https://www.denvergov.org/Government/Agencies-Departments-Offices/Agencies-Departments-Offices-Directory/Parks-Recreation", linkLabel:"Parks info", phone:"(720) 913-1311" },
+    { cat:"parks", name:"City Park (Denver)", dist:8, meta:"Urban Green Space", desc:"Denver's largest urban park at 330+ acres, with two lakes, gardens, a golf course, mountain-view sunset shots, and the city Zoo and Museum of Nature & Science both inside its borders. Free lot and street parking, though museum or zoo event days fill fast.", tag:"free", mapQuery:"City Park, 2000 York St, Denver, CO 80205", link:"https://www.denvergov.org/Government/Agencies-Departments-Offices/Agencies-Departments-Offices-Directory/Parks-Recreation", linkLabel:"Parks info", phone:"(720) 913-1311" },
+    { cat:"parks", name:"Washington Park", dist:10, meta:"Park · Lakes & Trails", desc:"A beloved south-Denver green space with two lakes, a Mount Vernon garden replica, and a perimeter loop popular with runners and cyclists. Flat and stroller-friendly. Street parking gets tight on weekends.", tag:"free", mapQuery:"Washington Park, 701 S Franklin St, Denver, CO 80209", link:"https://www.denvergov.org/Government/Agencies-Departments-Offices/Agencies-Departments-Offices-Directory/Parks-Recreation", linkLabel:"Parks info", phone:"(720) 865-3400" },
+    { cat:"parks", name:"Cheesman Park", dist:7, meta:"Historic Park · Mountain View", desc:"A Capitol Hill-adjacent park centered on a Greek-columned marble pavilion with arguably the best unobstructed mountain view in central Denver. It sits atop the former City Cemetery grounds. Best at golden hour; free street parking is usually findable.", tag:"free", mapQuery:"Cheesman Park, 1599 E 8th Ave, Denver, CO 80218", link:"https://www.denvergov.org/Government/Agencies-Departments-Offices/Agencies-Departments-Offices-Directory/Parks-Recreation", linkLabel:"Parks info", phone:"(720) 913-1311" },
+    { cat:"parks", name:"Confluence Park", dist:4, meta:"Urban Whitewater Park", desc:"The literal confluence of Cherry Creek and the South Platte River, now a kayak and tubing play-wave hub connecting into the Cherry Creek and South Platte trail networks. Great warm-weather people-watching; street or a nearby paid lot for parking.", tag:"free", mapQuery:"Confluence Park, 2250 15th St, Denver, CO 80202", link:"https://www.denvergov.org/Government/Agencies-Departments-Offices/Agencies-Departments-Offices-Directory/Parks-Recreation", linkLabel:"Parks info", phone:"(720) 913-1311" },
+    { cat:"parks", name:"Red Rocks Park (trails)", dist:15, meta:"Mountain Park · Geologic Trails", desc:"Towering red sandstone formations with five hiking trails — the Trading Post Trail is the highlight, a loop right through the rock formations near the famous amphitheater. Free, no pass needed, but access can be restricted around concerts, so check the event calendar first. Rock climbing is prohibited.", difficulty:"Easy", length:"1.4 mi", routeType:"Loop", tag:"free", mapQuery:"Red Rocks Trading Post, 17900 Trading Post Rd, Morrison, CO 80465", link:"https://www.redrocksonline.com/explore-red-rocks/recreation/", linkLabel:"Trail info", phone:"(720) 865-2494" },
+    { cat:"parks", name:"Chatfield State Park", dist:19, meta:"State Park · Reservoir", desc:"A large reservoir park with a marina, swim beach, extensive trails, and even a working stable and native-plant farm. Requires a Colorado State Parks daily vehicle pass (roughly $10–17); camping needs a separate advance reservation.", mapQuery:"Chatfield State Park, 11500 N Roxborough Park Rd, Littleton, CO 80125", link:"https://cpw.state.co.us/state-parks/chatfield-state-park", linkLabel:"Park info", phone:"(303) 791-7275" },
+    { cat:"parks", name:"Bear Creek Lake Park", dist:13, meta:"Regional Park · Lake & Trails", desc:"A 2,600+ acre Lakewood park with a swim lake, 15+ miles of multi-use trails, an archery range, and dog-friendly grounds. Charges a per-vehicle day-use fee (a city park fee, not a state parks pass) — confirm the current rate before you go.", mapQuery:"Bear Creek Lake Park, 15600 W Morrison Rd, Lakewood, CO 80228", link:"https://www.lakewoodco.gov/", linkLabel:"Park info", phone:"(303) 697-6159" },
+    { cat:"parks", name:"William F. Hayden Park on Green Mountain", dist:12, meta:"Open Space · Summit Trail", desc:"Over 2,400 acres climbing to a 6,800-ft summit with a 360° panorama of the whole metro skyline against the Rockies, without Red Rocks-level crowds. Free, with two large free trailhead lots off C-470.", difficulty:"Moderate", tag:"free", mapQuery:"William F. Hayden Park, 1000 S Rooney Rd, Lakewood, CO 80228", link:"https://www.lakewoodco.gov/", linkLabel:"Park info", phone:"(303) 697-6159" },
+    { cat:"parks", name:"Denver Botanic Gardens", dist:9, meta:"Botanic Garden · York Street", desc:"A polished 24-acre curated garden with a Japanese garden, a Science Pyramid, a desert conservatory, and a packed summer concert series. Paid admission (roughly $12.50–18, pricing varies seasonally). Go early on summer mornings to beat both heat and crowds.", mapQuery:"Denver Botanic Gardens, 1007 York St, Denver, CO 80206", link:"https://www.botanicgardens.org/", linkLabel:"Website", phone:"(720) 865-3500" },
+    // ---- Family-Friendly ----
+    { cat:"kids", name:"Denver Zoo Conservation Alliance", dist:9, meta:"Zoo · City Park", desc:"A recently rebranded zoo (established 1896) with about 3,500 animals across 450 species, inside City Park. Roughly $26 adult / $19 child, with free parking. Online timed-entry tickets are required for non-members, so book before you arrive.", mapQuery:"Denver Zoo, 2300 Steele St, Denver, CO 80205", link:"https://denverzoo.org/", linkLabel:"Website", phone:"(720) 337-1400", tag:"reservation" },
+    { cat:"kids", name:"Downtown Aquarium Denver", dist:4, meta:"Aquarium & Family Dining", desc:"A 1-million-gallon aquarium inside a converted power plant, with a shark tunnel, a stingray touch tank, and an attached restaurant built around one of the tanks. Roughly $23.50 adult / $17.50 child. No reservation needed for general admission; free parking after 6pm with a restaurant receipt.", mapQuery:"Downtown Aquarium Denver, 700 Water St, Denver, CO 80211", link:"https://www.aquariumrestaurants.com/downtownaquariumdenver/", linkLabel:"Website", phone:"(303) 561-4450" },
+    { cat:"kids", name:"Elitch Gardens Theme & Water Park", dist:5, meta:"Amusement & Water Park", desc:"Downtown rides plus the Island Kingdom water park on one ticket, marking its 136th season in 2026. Roughly $43–58/day (cheaper booked online). The land it sits on was recently sold as part of the \"River Mile\" redevelopment, so it's fine to visit this season, but its longer-term future is genuinely uncertain — worth a quick check before planning far ahead.", mapQuery:"Elitch Gardens, 2000 Elitch Circle, Denver, CO 80204", link:"https://www.elitchgardens.com/", linkLabel:"Website", phone:"(303) 595-4386" },
+    { cat:"kids", name:"Children's Museum of Denver at Marsico Campus", dist:4, meta:"Children's Museum", desc:"A play-based museum for newborns through age 8 along the South Platte, right next to the Downtown Aquarium. Roughly $19.75 (ages 2–59). No online tickets or timed entry — just door purchase.", mapQuery:"Children's Museum of Denver, 2121 Children's Museum Dr, Denver, CO 80211", link:"https://www.mychildsmuseum.org/", linkLabel:"Website", phone:"(303) 433-7444" },
+    { cat:"kids", name:"Butterfly Pavilion", dist:12, meta:"Insect Zoo & Nature Center · Westminster", desc:"A free-flight tropical conservatory plus stingray touch tanks and tarantulas. Roughly $19.45 adult. Requires advance timed-entry tickets (hourly windows, with one free reschedule) — don't show up without one.", mapQuery:"Butterfly Pavilion, 6252 W 104th Ave, Westminster, CO 80020", link:"https://butterflies.org/", linkLabel:"Website", phone:"(303) 469-5441", tag:"reservation" },
+    { cat:"kids", name:"Water World", dist:13, meta:"Water Park (Seasonal)", desc:"A large outdoor water park with a new \"Summit Canyon\" slide expansion that opened in 2026. Online pick-a-date tickets (roughly $33–50) are cheaper than the gate price. Seasonal and weather-dependent — runs late May through early September.", mapQuery:"Water World, 8801 N Pecos St, Federal Heights, CO 80260", link:"https://www.waterworldcolorado.com/", linkLabel:"Website", phone:"(303) 427-7873" },
+    { cat:"kids", name:"Lakeside Amusement Park", dist:2.5, meta:"Historic Amusement Park", desc:"A family-owned park dating to 1908 (the oldest still on its original Colorado site), right by Sloan's Lake — the closest family attraction to your homebase. A classic wooden coaster and a mile-long mini train, cheaper than Elitch's at roughly $35/day. Hours are limited and irregular (evenings only on weekdays, closed Tuesdays), so check before heading over.", mapQuery:"Lakeside Amusement Park, 4601 Sheridan Blvd, Denver, CO 80212", link:"https://www.lakesideamusementpark.com/", linkLabel:"Website", phone:"(303) 477-1621" },
+    { cat:"kids", name:"Slick City Denver West", dist:7, meta:"Indoor Adventure · Slide Park", desc:"Billed as the \"world's first indoor slide park\" — giant slides, trampolines, and foam-pit play, a good weather-proof option. Roughly $19–30+ per session. Note: it shares its Colorado Mills mall address/suite with a now-closed JumpStreet trampoline park, so some map listings still show the old business name — navigate by \"Slick City\" specifically.", mapQuery:"Slick City Denver West, 14500 W Colfax Ave, Lakewood, CO 80401", link:"https://www.slickcity.com/co-denver-west", linkLabel:"Website", phone:"(720) 798-6333" },
+    // ---- Sports & Entertainment ----
+    { cat:"sports", name:"Coors Field", dist:7, meta:"MLB Stadium · Rockies", desc:"The Colorado Rockies' home since 1995 in LoDo, famous for the purple \"mile-high\" seat row marking exactly 5,280 feet elevation, plus an on-site microbrewery. Walk-up tickets are usually available for weekday games; LoDo street parking or the light rail to Union Station are good alternatives to lots.", mapQuery:"Coors Field, 2001 Blake St, Denver, CO 80205", link:"https://www.mlb.com/rockies/ballpark", linkLabel:"Tickets & info", phone:"(303) 292-0200" },
+    { cat:"sports", name:"Ball Arena", dist:5, meta:"NBA / NHL Arena", desc:"Home of the Nuggets, Avalanche, and Colorado Mammoth lacrosse, plus major touring concerts. Renamed from Pepsi Center in 2020. The W Line light rail stops right outside; garages get pricey on event nights.", mapQuery:"Ball Arena, 1000 Chopper Cir, Denver, CO 80204", link:"https://www.ballarena.com/", linkLabel:"Events & info", phone:"(303) 405-1100" },
+    { cat:"sports", name:"Empower Field at Mile High", dist:5, meta:"NFL Stadium · Broncos", desc:"The Broncos' home since 2001, with a naming deal running through 2039. Home games routinely sell out, so buy well ahead through Ticketmaster or SeatGeek. Pre-purchased parking passes are needed for official lots; the RTD W Line and shuttles are popular alternatives.", mapQuery:"Empower Field at Mile High, 1701 Bryant St, Denver, CO 80204", link:"https://www.empowerfieldatmilehigh.com/", linkLabel:"Tickets & info", phone:"(720) 258-3000", tag:"reservation" },
+    { cat:"sports", name:"Dick's Sporting Goods Park", dist:20, meta:"MLS Soccer Stadium", desc:"Home of the Colorado Rapids, northeast of Denver proper. The box office no longer sells by phone, so buy online in advance. Straightforward surface-lot parking makes for an easier in-and-out than the downtown venues.", mapQuery:"Dick's Sporting Goods Park, 6000 Victory Way, Commerce City, CO 80022", link:"https://www.dickssportinggoodspark.com/", linkLabel:"Tickets & info", phone:"(303) 227-4400" },
+    { cat:"sports", name:"Red Rocks Amphitheatre (concerts)", dist:13, meta:"Concert Venue · Outdoor Amphitheater", desc:"The iconic sandstone amphitheater, city-owned, hosting 150+ shows a season. Tickets are exclusively through AXS, and advance purchase is essentially mandatory — shows frequently sell out, especially Friday and Saturday. Free parking fills fast; use the shuttle from park-and-ride lots for popular shows, and expect a strict small-bag, no-re-entry policy.", mapQuery:"Red Rocks Amphitheatre, 18300 W Alameda Pkwy, Morrison, CO 80465", link:"https://www.redrocksonline.com/", linkLabel:"Tickets & info", phone:"(720) 865-2494", tag:"reservation" },
+    { cat:"sports", name:"Meow Wolf Denver — Convergence Station", dist:5.5, meta:"Immersive Art Experience", desc:"A four-story walk-through art installation and multiverse near Ball Arena — part art museum, part puzzle hunt, part funhouse, and distinct from the Santa Fe and Las Vegas locations. Plan 1.5–3 hours; roughly $36–55 per adult depending on date. Timed-entry tickets are strongly recommended in advance — weekends and evenings frequently sell out.", mapQuery:"Meow Wolf Denver, 1338 1st St, Denver, CO 80204", link:"https://meowwolf.com/visit/denver", linkLabel:"Tickets & info", phone:"(866) 636-9969", tag:"reservation" },
+    { cat:"sports", name:"Comedy Works Downtown", dist:7, meta:"Comedy Club · Larimer Square", desc:"Denver's premier stand-up club in a Larimer Square basement room, a longtime stop for touring headliners. Two-drink minimum, no recording. Book ahead for weekend shows or big names — a sister club, Comedy Works South, is out in Greenwood Village.", mapQuery:"Comedy Works Downtown, 1226 15th St, Denver, CO 80202", link:"https://www.comedyworks.com/", linkLabel:"Tickets & info", phone:"(303) 595-3637" },
+    { cat:"sports", name:"Mission Ballroom", dist:9, meta:"Concert Venue · RiNo", desc:"A modern ~3,950-capacity indoor/outdoor hall in RiNo that opened in 2019 and quickly became Denver's go-to mid-size touring venue. Tickets via AXS; there's an on-site lot plus RiNo street and lot parking nearby.", mapQuery:"Mission Ballroom, 4242 Wynkoop St, Denver, CO 80216", link:"https://www.missionballroom.com/", linkLabel:"Tickets & info", phone:"(720) 577-6884" },
+    { cat:"sports", name:"Fillmore Auditorium", dist:8, meta:"Concert Venue", desc:"A historic ballroom-style venue near Colfax with a wraparound balcony over the GA standing-room floor. Tickets via AXS/Ticketmaster; mostly street and lot parking, with rideshare recommended given the busy Colfax corridor.", mapQuery:"Fillmore Auditorium, 1510 Clarkson St, Denver, CO 80218", link:"https://www.fillmoreauditorium.org/", linkLabel:"Tickets & info", phone:"(303) 837-0360" },
+    { cat:"sports", name:"Ogden Theatre", dist:8, meta:"Concert Venue", desc:"A restored 1917 movie-palace-turned-concert-hall with about 1,600 capacity and roughly 150 shows a year. Tickets via AXS; street parking on Colfax is tight, so nearby paid lots or rideshare are recommended.", mapQuery:"Ogden Theatre, 935 E Colfax Ave, Denver, CO 80218", link:"https://www.ogdentheatre.com/", linkLabel:"Tickets & info", phone:"(303) 832-1874" },
+    // ---- Historic Sites ----
+    { cat:"historic", name:"Colorado State Capitol", dist:7, meta:"Historic Landmark · Capitol Hill", desc:"A gold-domed 1894 statehouse with free guided tours up into the dome for Front Range views; a marked step on the west staircase sits exactly one mile above sea level. Individual and small-group tours (Mon–Fri, 10am–3pm) generally don't need reservations; groups of 10+ must book ahead, up to a year out.", tag:"free", mapQuery:"Colorado State Capitol, 200 E Colfax Ave, Denver, CO 80203", link:"https://capitol.colorado.gov/", linkLabel:"Tour info", phone:"(303) 866-2604" },
+    { cat:"historic", name:"Denver Mint (U.S. Mint)", dist:6.5, meta:"Historic Landmark · Federal Building", desc:"An active coin-producing mint in a 1904 Renaissance Revival building. Tours reopened under a new online reservation system in September 2025 — book up to 30 days ahead (releases 1am MT), max 5 tickets, photo ID required, no walk-ups. Mon–Thu only, roughly 75-minute tours.", mapQuery:"Denver Mint, 320 W Colfax Ave, Denver, CO 80204", link:"https://www.usmint.gov/about/tours-and-locations/denver", linkLabel:"Book a tour", phone:"(303) 405-4761", tag:"reservation" },
+    { cat:"historic", name:"Denver Union Station", dist:6, meta:"Historic Landmark · Transit Hub", desc:"A 1914 Beaux-Arts train hall restored in 2014 into a hub of restaurants, a boutique hotel, and a bar built into the old ticket windows. Free to visit anytime (the public spaces are open 24/7); underground paid parking, plus light rail and Amtrak access.", tag:"free", mapQuery:"Denver Union Station, 1701 Wynkoop St, Denver, CO 80202", link:"https://www.denverunionstation.com/", linkLabel:"Website", phone:"(833) 391-0338" },
+    { cat:"historic", name:"Larimer Square", dist:6, meta:"Historic District · Downtown", desc:"Denver's founding block from 1858 and the city's first historic district (1971), with restored 1870s–90s storefronts now housing restaurants and boutiques. Free to walk anytime; nearby paid garages are your best bet since street parking is scarce.", tag:"free", mapQuery:"Larimer Square, 1430 Larimer St, Denver, CO 80202", link:"https://www.larimersquare.com/", linkLabel:"Website" },
+    { cat:"historic", name:"The Brown Palace Hotel", dist:6.5, meta:"Historic Hotel · Landmark", desc:"An 1892 atrium-style hotel that's hosted every U.S. president since Teddy Roosevelt. The public lobby is free to view; a 75-minute paid history and ghost-story tour (about $25) departs daily at 1:30pm from outside Ship's Tavern. Valet parking is available on-site for a fee.", mapQuery:"The Brown Palace Hotel, 321 17th St, Denver, CO 80202", link:"https://www.brownpalace.com/", linkLabel:"Website", phone:"(303) 297-3111" },
+    { cat:"historic", name:"Byers-Evans House Museum", dist:7, meta:"Historic House Museum · Civic Center", desc:"An 1883 Victorian mansion that belonged to two founding Denver families, now spotlighting Colorado women's history as the Center for Colorado Women's History. Visit the self-guided ground floor, or book ahead for the full guided upstairs tour.", mapQuery:"Byers-Evans House Museum, 1310 Bannock St, Denver, CO 80204", link:"https://www.historycolorado.org/", linkLabel:"Website", phone:"(303) 620-4933" },
+    { cat:"historic", name:"Trinity United Methodist Church", dist:7, meta:"Historic Church · Downtown", desc:"An 1888 Gothic Revival sandstone church designed by Colorado's first licensed architect, with a 180-ft bell tower and striking stained glass. Free historical tours run Sundays after the 11am service; contact the office for group tours or off-hours access.", tag:"free", mapQuery:"Trinity United Methodist Church, 1820 Broadway, Denver, CO 80202", link:"https://www.trinityumc.org/", linkLabel:"Website", phone:"(303) 839-1493" },
+    { cat:"historic", name:"Four Mile Historic Park", dist:12, meta:"Living History Farm", desc:"Denver's oldest standing structure, an 1859 log-and-brick farmhouse, sits on a 12-acre park recreating 1880s farm life, with heritage animals and weekend costumed interpreters. Free on-site parking; hours shift seasonally (Wed–Sun in summer/fall, Fri–Sun only January through May).", mapQuery:"Four Mile Historic Park, 715 S Forest St, Denver, CO 80246", link:"https://fourmilepark.org/", linkLabel:"Website", phone:"(720) 865-0800" },
+    { cat:"historic", name:"Governor's Residence at the Boettcher Mansion", dist:7.5, meta:"Historic Mansion", desc:"A 1908 Colonial Revival mansion, Colorado's official governor's residence since 1960, with original Belgian art glass and Waterford chandeliers. Public tours must be scheduled via the online request form; periodic free open houses don't require pre-booking, though access can change on short notice for security reasons.", mapQuery:"Governor's Residence, 400 E 8th Ave, Denver, CO 80203", link:"https://governor-residence.colorado.gov/", linkLabel:"Tour info", phone:"(303) 866-5344" },
+    { cat:"historic", name:"Historic Elitch Theatre", dist:3, meta:"Historic Theatre · Berkeley/Highland", desc:"An 1891 vaudeville-era theater, a survivor from the original (since-relocated) Elitch Gardens amusement park, close to Sloan's Lake. Now a nonprofit-run venue for concerts, film screenings, and occasional ticketed history tours — no fixed walk-in hours, so check the events calendar first.", mapQuery:"Historic Elitch Theatre, 4600 W 37th Pl, Denver, CO 80212", link:"https://www.historicelitchtheatre.org/", linkLabel:"Website", phone:"(720) 550-0822" },
+    // ---- Scenic Viewpoints & Nearby Escapes ----
+    { cat:"scenic", name:"Lookout Mountain Park & Buffalo Bill Museum", dist:18, meta:"Scenic Overlook · Historic Museum", desc:"A hairpin drive up the Lariat Loop to 7,300+ feet, with views over Golden, Denver, and the plains; Buffalo Bill Cody's grave sits at the summit. Museum hours run May 19–Oct 31 daily 9–5, then Tue–Sun 10–5 the rest of the year (closed Mondays). The overlook and grounds are free; museum admission is modest.", mapQuery:"Buffalo Bill Museum and Grave, 987 1/2 Lookout Mountain Rd, Golden, CO 80401", link:"https://www.buffalobill.org/", linkLabel:"Website", phone:"(720) 865-2160" },
+    { cat:"scenic", name:"Genesee Mountain Park — Buffalo Herd Overlook", dist:16, meta:"Scenic Overlook · Wildlife Viewing", desc:"The largest Denver Mountain Park at 2,400+ acres, hosting one of the city's two municipal bison herds since 1914 (roughly 30–50 animals). Free drive-by overlook right off I-70; best sightings are early morning or dusk, though never guaranteed.", tag:"free", mapQuery:"Genesee Mountain Park, 26771 Genesee Ln, Golden, CO 80401", link:"https://mountainparksfoundation.org/parks/genesee-and-katherine-craig-parks/", linkLabel:"Park info", phone:"(720) 913-0700" },
+    { cat:"scenic", name:"Daniels Park (Bison Herd & Overlook)", dist:30, meta:"Scenic Overlook · Wildlife Viewing", desc:"Denver's second bison herd (roughly 20 animals) roams 800+ acres here, with a nearly 100-mile panorama from Pikes Peak to Wyoming. Free and quieter than Genesee, but it's the furthest entry in this category — worth pairing with other south-metro stops.", tag:"free", mapQuery:"Daniels Park, 8682 N Daniels Park Rd, Sedalia, CO 80135", link:"https://www.douglas.co.us/dcoutdoors/parks/daniels-park/", linkLabel:"Park info", phone:"(720) 865-0900" },
+    { cat:"scenic", name:"Mount Falcon Park", dist:18, meta:"Scenic Overlook · Historic Ruins Hike", desc:"A Jeffco Open Space park with stone ruins of a planned \"summer White House,\" a climbable lookout tower, and big Front Range views. Free day-use, no fee. The Morrison-side trailhead is closer and busier; the West trailhead is quieter but steeper.", difficulty:"Moderate", tag:"free", mapQuery:"Mount Falcon Park, 3852 Vine St, Morrison, CO 80465", link:"https://www.jeffco.us/1332/Mount-Falcon-Park", linkLabel:"Park info", phone:"(303) 271-5925" },
+    { cat:"scenic", name:"Colorado Railroad Museum", dist:9, meta:"Historic Museum · Family Attraction", desc:"A 15-acre working railyard with 100+ historic locomotives, a roundhouse, and a large model railroad, with foothills views. Adults $12 / seniors $10 / kids 2–17 $5. Weekend visits sometimes catch a steam or diesel excursion train running.", mapQuery:"Colorado Railroad Museum, 17155 W 44th Ave, Golden, CO 80403", link:"https://www.coloradorailroadmuseum.org/", linkLabel:"Website", phone:"(800) 365-6263" },
+    { cat:"scenic", name:"Clear Creek Whitewater Park (Golden)", dist:11, meta:"Creek Recreation · Tubing & Kayaking", desc:"A free, unsupervised whitewater course through downtown Golden — the metro's most popular hot-day tubing and kayaking spot. Peak runoff (May–June) is fast and cold; mid-to-late summer is friendlier for casual tubing. Free parking near 10th St; local outfitters rent tubes.", tag:"free", mapQuery:"Clear Creek Whitewater Park, 1201 10th St, Golden, CO 80401", link:"https://www.visitgolden.com/plan-your-visit/creek-info/", linkLabel:"Creek info", phone:"(303) 384-8000" },
+    { cat:"scenic", name:"North Table Mountain Park", dist:10, meta:"Scenic Overlook · Mesa-Top Hiking", desc:"A flat-topped volcanic mesa with panoramic Denver skyline and Front Range views, a favorite for sunrise or sunset. Free, dawn to dusk. It's exposed and windy up top, and rattlesnake habitat in warm months, so stay on trail.", difficulty:"Moderate", tag:"free", mapQuery:"North Table Mountain Park, 4788 CO-93, Golden, CO 80403", link:"https://www.jeffco.us/1427/North-Table-Mountain-Park", linkLabel:"Park info", phone:"(303) 271-5925" },
+    { cat:"scenic", name:"South Table Mountain Park", dist:9, meta:"Scenic Overlook · Mesa-Top Hiking", desc:"\"Carl's Point\" here overlooks downtown Golden and the Coors brewery complex below. Free. The Lava Loop Trail closes seasonally February 1–July 31 for raptor nesting, so check before routing through that section.", difficulty:"Moderate", tag:"free", mapQuery:"South Table Mountain Park, 1219 Kilmer St, Golden, CO 80401", link:"https://www.jeffco.us/1430/South-Table-Mountain-Park", linkLabel:"Park info", phone:"(303) 271-5925" },
+    { cat:"scenic", name:"Dinosaur Ridge", dist:15, meta:"Geologic Landmark · Outdoor Museum", desc:"A National Natural Landmark with real dinosaur trackways along a walkable former roadway, with views toward Red Rocks and the plains. Self-guided walking is free; guided bus tours and weekend walking tours need reservations. Seasonal hours: Mar 15–Oct 31 9–5, Nov 1–Mar 14 9–4.", difficulty:"Easy", mapQuery:"Dinosaur Ridge, 16831 W Alameda Pkwy, Morrison, CO 80465", link:"https://www.dinoridge.org/", linkLabel:"Website", phone:"(303) 697-3466" },
+    { cat:"scenic", name:"White Ranch Park", dist:16, meta:"Scenic Overlook · Foothills Hiking", desc:"A 20+ mile trail network on a former ranch with sweeping ridge views, less crowded than Table Mountain or Mount Falcon. Free day-use; primitive camping is available by paid permit.", difficulty:"Moderate", tag:"free", mapQuery:"White Ranch Park, 21827 W 56th Ave, Golden, CO 80403", link:"https://www.jeffco.us/1437/White-Ranch-Park", linkLabel:"Park info", phone:"(303) 271-5925" },
+    // ---- Shopping ----
+    { cat:"shopping", name:"16th Street", dist:6, meta:"Pedestrian Corridor · Downtown Shopping & Dining", desc:"Formerly \"16th Street Mall,\" fully reopened in October 2025 after a 3-year, $176M rebuild and officially renamed. Roughly 200 retailers and restaurants along a rebuilt 1.2-mile corridor; the retail tenant mix is still recovering, so it currently leans more toward dining and experiences than heavy retail. Park in downtown garages.", mapQuery:"16th Street, Denver, CO 80202", link:"https://www.downtowndenver.com/16th", linkLabel:"District info", phone:"(303) 534-6161" },
+    { cat:"shopping", name:"Denver Pavilions", dist:6, meta:"Mall · Downtown Entertainment & Retail", desc:"An open-air, 3-level retail and entertainment complex anchored around a movie theater, right on the 16th Street corridor. Mon–Sat 10–9, Sun 11–6 (summer hours); on-site parking garage.", mapQuery:"Denver Pavilions, 500 16th St, Denver, CO 80202", link:"https://www.shopthepavilions.com/", linkLabel:"Website", phone:"(303) 260-6001" },
+    { cat:"shopping", name:"Denver Union Station Shops", dist:6, meta:"Boutique Retail · Historic Transit Hub", desc:"Curated independent boutiques inside the restored Great Hall (a bookstore, a floral shop, a chocolatier among them) alongside many restaurants and bars. Underground paid parking; light rail and the free MallRide both stop nearby.", mapQuery:"Denver Union Station, 1701 Wynkoop St, Denver, CO 80202", link:"https://www.denverunionstation.com/", linkLabel:"Website", phone:"(833) 391-0338" },
+    { cat:"shopping", name:"Cherry Creek Shopping Center", dist:10, meta:"Mall · Upscale Enclosed Center", desc:"Denver's premier enclosed luxury mall, with 160+ brands including Nordstrom, Macy's, and strong designer and contemporary retail. Attached and adjacent parking structures; pairs naturally with Cherry Creek North right next door.", mapQuery:"Cherry Creek Shopping Center, 3000 E 1st Ave, Denver, CO 80206", link:"https://www.shopcherrycreek.com/", linkLabel:"Website", phone:"(303) 388-3900" },
+    { cat:"shopping", name:"Cherry Creek North", dist:10, meta:"Boutique District · Walkable Upscale", desc:"The open-air counterpart to the mall next door — 75+ independent fashion boutiques among roughly 175 businesses total, plus 50+ restaurants and bars, all tree-lined and walkable. Metered street parking and public lots; best explored on foot once parked.", mapQuery:"Cherry Creek North, 2401 E 2nd Ave, Denver, CO 80206", link:"https://cherrycreeknorth.com/", linkLabel:"District info", phone:"(303) 394-2904" },
+    { cat:"shopping", name:"RiNo Art District Shops & Galleries", dist:7, meta:"Arts District · Galleries & Design Shops", desc:"A former industrial corridor turned Denver's densest arts and design shopping zone — makers' studios, galleries, and mural walls along Larimer, Walnut, and Blake streets. The RTD A Line stops at 38th & Blake. Street parking is tight, especially during the monthly First Friday art walk.", mapQuery:"3400 Larimer St, Denver, CO 80205", link:"https://rinoartdistrict.org/", linkLabel:"District info" },
+    { cat:"shopping", name:"South Broadway Antique Row (SoBo)", dist:9, meta:"Shopping District · Antiques & Vintage", desc:"Smaller than its 1980s–90s heyday of 100+ dealers, but still roughly two to three dozen shops mixing genuine antiques, vintage clothing, bookstores, and galleries along South Broadway. Free street parking, and it's an easy walk block-to-block.", mapQuery:"S Broadway, Denver, CO 80210", link:"https://www.denver.org/neighborhoods/south-broadway/", linkLabel:"District info" },
+    { cat:"shopping", name:"Park Meadows", dist:26, meta:"Mall · Upscale Regional Retail", desc:"Colorado's largest mall, with a lodge-style aesthetic and 185+ stores and restaurants including Nordstrom and Macy's, plus a heavy athletic-apparel presence. A genuine day-trip distance from central Denver. Free, large surface lots.", mapQuery:"Park Meadows, 8401 Park Meadows Center Dr, Lone Tree, CO 80124", link:"https://www.parkmeadows.com/", linkLabel:"Website", phone:"(303) 792-2999" },
+    { cat:"shopping", name:"Colorado Mills", dist:5, meta:"Outlet Mall · Indoor Value Shopping", desc:"The Denver area's only fully indoor outlet mall, with 160+ discount and outlet stores plus dining and a movie theater — one of the closest large shopping centers to your homebase. Ample free surface parking.", mapQuery:"Colorado Mills, 14500 W Colfax Ave, Lakewood, CO 80401", link:"https://www.simon.com/mall/colorado-mills", linkLabel:"Website", phone:"(303) 384-3000" },
+    { cat:"shopping", name:"Tennyson Street", dist:3, meta:"Boutique Shopping Street · Berkeley", desc:"A low-key, distinctly local 8-block strip of independent boutiques, jewelry and design studios, record shops, and well-regarded restaurants — the closest shopping entry to your homebase. Street parking is generally easy outside the annual Tennyson Street Fair.", mapQuery:"Tennyson St, Denver, CO 80212", link:"https://www.tennysonst.com/", linkLabel:"Website" },
+    // ---- Other Attractions ----
+    { cat:"other", name:"Coors Brewery Tour", dist:8, meta:"Brewery Tour · Golden, 21+", desc:"A tour of the \"world's largest single-site brewery\" — a 90-minute guided walk through malting, brewing, and packaging with samples at the end. Not free, at roughly $25.50 adult (21+) / $17.50 under-21. Reservations are required and release 25 days ahead; open Mon, Thu–Sun 10–4, closed Tue/Wed.", mapQuery:"Coors Brewery Tour, 502 14th St, Golden, CO 80401", link:"https://www.coorsbrewerytour.com/", linkLabel:"Book a tour", phone:"(303) 277-2337", tag:"reservation" },
+    { cat:"other", name:"Stranahan's Colorado Whiskey Distillery Tour", dist:9, meta:"Distillery Tour · 21+", desc:"Colorado's first legal distillery since Prohibition, offering an hour-long tour plus a tasting of four expressions. 21+ only, no children or infants, closed-toe shoes required. Advance booking required — slots open about three weeks out and sell out on weekends.", mapQuery:"Stranahan's Colorado Whiskey, 200 S Kalamath St, Denver, CO 80223", link:"https://www.stranahans.com/tours", linkLabel:"Book a tour", phone:"(303) 296-7440", tag:"reservation" },
+    { cat:"other", name:"iFLY Colorado", dist:30, meta:"Indoor Skydiving · Lone Tree", desc:"Vertical wind-tunnel simulated skydiving, no experience needed, with a wide age range welcome. First-timer packages run roughly $90–105 (actual flight time is just minutes). Advance booking recommended, especially on weekends. It's a longer drive out toward Lone Tree.", mapQuery:"iFLY Colorado, 9230 Park Meadows Dr, Lone Tree, CO 80124", link:"https://www.iflyworld.com/denver/", linkLabel:"Website", phone:"(303) 768-9000" },
+    { cat:"other", name:"Cloudbase Balloons — Hot Air Balloon Rides", dist:19, meta:"Hot Air Balloon Ride", desc:"A sunrise flight over the Front Range foothills, roughly 45–60+ minutes plus chase-crew pickup and a champagne toast tradition. About $269 per person; weather-dependent with possible last-minute rescheduling, so build in flexibility. Advance reservation required.", mapQuery:"Chatfield State Park, Littleton, CO 80125", link:"https://www.cloudbaseballoons.com/", linkLabel:"Book a flight", phone:"(303) 978-0144", tag:"reservation" },
+    { cat:"other", name:"First Friday Art Walk — Art District on Santa Fe", dist:8, meta:"Arts District · Monthly Art Walk", desc:"Denver's largest, longest-running art walk — the first Friday of every month, 5:30–9:30pm, with 100+ galleries, studios, and vendors plus live music and food trucks. Free and all-ages. Street parking fills fast; the light rail stop at 10th & Osage or rideshare is recommended.", tag:"free", mapQuery:"Art District on Santa Fe, 858 Santa Fe Dr, Denver, CO 80204", link:"https://www.denversartdistrict.org/", linkLabel:"Website", phone:"(303) 534-9740" },
+    { cat:"other", name:"Denver Terrors Ghost Tour", dist:7, meta:"Ghost / History Walking Tour", desc:"A nightly, researched-history walking tour of downtown and Capitol Hill's haunted lore, with 7pm and 9pm departures, rain or shine, meeting at the Capitol's east steps. A separate 21+ Haunted Pub Crawl option meets elsewhere. Advance online booking recommended — tours regularly sell out.", mapQuery:"Colorado State Capitol, 200 E Colfax Ave, Denver, CO 80203", link:"https://www.denverterrors.com/", linkLabel:"Book a tour", phone:"(303) 210-4390" },
+    { cat:"other", name:"Colorado Cannabis Tours", dist:9, meta:"Cannabis Tour · 21+", desc:"A roughly 2-hour \"Original Cannabis Tour\" through a licensed grow facility, a glass-art gallery, and a top-rated dispensary, in small groups of about 12 max. 21+ only, valid ID required at every stop, around $79 per person. Long-established since 2014, but it's reasonable to call ahead and confirm before booking, since this sector has seen other operators close abruptly.", mapQuery:"Colorado Cannabis Tours, 381 E 55th Ave, Denver, CO 80216", link:"https://www.coloradocannabistours.com/", linkLabel:"Book a tour", phone:"(303) 420-8687", tag:"reservation" },
+    { cat:"other", name:"Bad Axe Throwing Denver", dist:7, meta:"Axe Throwing", desc:"Indoor lumberjack-style axe throwing with coached lanes and scoring games — good for groups, birthdays, or a casual night out. Waivers required for all participants; confirm the minimum-age policy directly if bringing minors. Online booking recommended for evenings and weekends.", mapQuery:"Bad Axe Throwing Denver, 937 E Colfax Ave, Denver, CO 80218", link:"https://www.badaxethrowing.com/locations/axe-throwing-denver/", linkLabel:"Book a lane", phone:"(844) 818-0999" }
+  ];
+  ACTIVITIES.forEach(function(item, i){ item.id = "act-" + i; });
+  var ACTIVITY_CATEGORIES = [
+    { value:"museums", label:"Museums & Culture", icon:"M4 4 h16 v16 h-16 Z M4 16 l4 -5 l3 4 l3 -4 l4 5 M9.5 9 a1.3 1.3 0 1 0 -0.01 0" },
+    { value:"parks", label:"Parks, Gardens & Trails", icon:"M12 3 L7 11 h3 L6 17 h5 v5 h2 v-5 h5 L15 11 h3 Z" },
+    { value:"kids", label:"Family-Friendly", icon:"M12 2 L18 9 L12 16 L6 9 Z M12 16 L10.5 22 M10.5 22 L12 20.5 L13.5 22" },
+    { value:"sports", label:"Sports & Entertainment", icon:"M4 8 a2 2 0 0 0 0 4 M20 8 a2 2 0 0 1 0 4 M4 8 V6 a2 2 0 0 1 2 -2 h12 a2 2 0 0 1 2 2 v2 M4 12 v2 a2 2 0 0 0 2 2 h12 a2 2 0 0 0 2 -2 v-2 M9 5 v2 M9 10.5 v3 M9 16 v2 M15 5 v2 M15 10.5 v3 M15 16 v2" },
+    { value:"historic", label:"Historic Sites", icon:"M4 20 h16 M6 20 V10 M10 20 V10 M14 20 V10 M18 20 V10 M4 10 L12 4 L20 10" },
+    { value:"scenic", label:"Scenic Viewpoints & Escapes", icon:"M3 18 L9 7 L12.5 13 L15 9 L21 18 Z" },
+    { value:"shopping", label:"Shopping", icon:"M5 8 L19 8 L18 21 L6 21 Z M9 8 L9 5 L15 5 L15 8" },
+    { value:"other", label:"Other Attractions", icon:"M12 3 l2.2 6.8 H21 l-5.6 4.2 2.1 6.8 -5.5 -4.1 -5.5 4.1 2.1 -6.8 L3 9.8 h6.8 z" }
+  ];
+
+  var FOOD = [
+    // ---- Restaurants ----
+    { cat:"restaurants", name:"Los Carboncitos", dist:1.5, meta:"Mexican Taqueria · $", desc:"A no-frills, family-run taqueria just a couple minutes from Sloan's Lake, turning out char-grilled tacos, tortas, and mulitas that regulars swear by. Counter-service casual with no reservations needed. A great option for a quick, cheap, authentic meal without heading downtown.", mapQuery:"Los Carboncitos, 722 Sheridan Blvd, Denver, CO 80214", link:"https://loscarboncitoscolorado.com/", linkLabel:"Website", phone:"(303) 573-1617" },
+    { cat:"restaurants", name:"Casa Bonita", dist:3.5, meta:"Mexican / Novelty Dinner Theater · $$", desc:"The legendary cliff-diving, cave-exploring Mexican dinner theater that inspired a South Park episode, reopened in 2023 under Trey Parker and Matt Stone's ownership with an overhauled menu and stagecraft. It's more spectacle than fine dining, but it's a genuine only-in-Denver bucket-list stop. Reservations are mandatory and book weeks out — buy tickets online before you arrive, walk-ins aren't accommodated.", mapQuery:"Casa Bonita, 6715 W Colfax Ave, Lakewood, CO 80214", link:"https://casabonitadenver.com/", linkLabel:"Reservations", phone:"(303) 232-5115" },
+    { cat:"restaurants", name:"Duo", dist:3, meta:"New American / Farm-to-Table · $$$", desc:"One of the original farm-to-table restaurants in the Highlands, with a seasonal menu built around Colorado producers and a well-regarded weekend brunch. Intimate dining room, date-night without being stuffy. Reservations recommended, especially for brunch.", mapQuery:"Duo Restaurant, 2413 W 32nd Ave, Denver, CO 80211", link:"https://www.duorestaurants.com/", linkLabel:"Website", phone:"(303) 477-4141" },
+    { cat:"restaurants", name:"Root Down", dist:3, meta:"Eclectic New American · $$$", desc:"Housed in a converted 1950s gas station, Root Down built its reputation on a globally-inspired, vegetable-forward menu and a strong cocktail and wine program. The patio is a summer favorite and weekend brunch draws a crowd. Reservations strongly recommended.", mapQuery:"Root Down, 1600 W 33rd Ave, Denver, CO 80211", link:"https://www.rootdowndenver.com/", linkLabel:"Website", phone:"(303) 993-4200" },
+    { cat:"restaurants", name:"Linger", dist:3, meta:"Asian-Latin Fusion / Rooftop · $$$", desc:"A converted mortuary turned into one of Denver's most photographed rooftop patios, with skyline views and a globally-wandering small-plates menu of street-food riffs from a dozen countries. Go for sunset drinks and apps even if you eat elsewhere. Reservations recommended for the rooftop, especially warm-weather evenings.", mapQuery:"Linger, 2030 W 30th Ave, Denver, CO 80211", link:"https://lingerdenver.com/", linkLabel:"Website", phone:"(303) 993-3120" },
+    { cat:"restaurants", name:"Denver Biscuit Company", dist:2.5, meta:"Southern Brunch · $", desc:"Denver's cult-favorite biscuit sandwich spot — the \"Franklin\" (fried chicken, bacon, cheddar, and a fried egg between a towering biscuit) is the signature order. Expect a wait on weekend mornings; it's worth it. Multiple locations around the city.", mapQuery:"Denver Biscuit Company, 4275 Tennyson St, Denver, CO 80212", link:"https://denverbiscuitcompany.com/", linkLabel:"Website", phone:"(720) 782-1855" },
+    { cat:"restaurants", name:"Buckhorn Exchange", dist:4.5, meta:"Historic Steakhouse & Game · $$$", desc:"Denver's oldest restaurant (est. 1893, holder of the city's first liquor license), a National Historic Landmark packed with taxidermy and Old West memorabilia. The menu leans into elk, buffalo, quail, and Rocky Mountain oysters — the classic spot for that Colorado rite of passage. Reservations recommended; it's as much a museum visit as a meal.", mapQuery:"Buckhorn Exchange, 1000 Osage St, Denver, CO 80204", link:"https://www.buckhorn.com/", linkLabel:"Website", phone:"(303) 534-9505" },
+    { cat:"restaurants", name:"El Taco de Mexico", dist:5.5, meta:"Mexican Dive · $", desc:"A cash-and-simplicity institution on the Santa Fe Art District strip since 1985, beloved for smothered burritos drowning in green chile and a lunch-counter atmosphere with zero pretense. This is where locals send you for a green chile education. No reservations, cash preferred.", mapQuery:"El Taco de Mexico, 714 Santa Fe Dr, Denver, CO 80204", phone:"(303) 623-3926" },
+    { cat:"restaurants", name:"Sam's No. 3", dist:5, meta:"Denver Diner / Green Chile · $", desc:"A downtown Denver diner tradition serving a Greek/Tex-Mex mashup menu, most famous for its \"Kickin' Green Pork Chili\" ladled over everything from fries to the Kitchen Sink Burrito. Casual counter-and-booth energy, good any time of day. No reservations.", mapQuery:"Sam's No. 3, 1500 Curtis St, Denver, CO 80202", link:"https://samsno3.com/", linkLabel:"Website", phone:"(303) 534-1927" },
+    { cat:"restaurants", name:"Rioja", dist:5, meta:"Mediterranean / New American · $$$", desc:"Chef Jennifer Jasinski's flagship in historic Larimer Square — Mediterranean-inflected, seasonal, and one of the more reliably excellent upscale dinners downtown. The goat cheese fritters and housemade pasta are longtime favorites. Reservations recommended, especially weekends.", mapQuery:"Rioja, 1431 Larimer St, Denver, CO 80202", link:"https://www.riojadenver.com/", linkLabel:"Website", phone:"(303) 820-2282" },
+    { cat:"restaurants", name:"Tavernetta", dist:5, meta:"Italian · $$$$", desc:"A Frasca Hospitality Group project on the Union Station platform, serving refined regional Italian cooking and a deep, well-curated wine list in a warm, plant-filled dining room. A splurge dinner done very well. Reservations essential — book ahead for weekend dinner.", mapQuery:"Tavernetta, 1889 16th St, Denver, CO 80202", link:"https://www.tavernettadenver.com/", linkLabel:"Website", phone:"(720) 605-1889" },
+    { cat:"restaurants", name:"Guard and Grace", dist:5, meta:"Modern Steakhouse · $$$$", desc:"A polished modern steakhouse downtown with one of the city's largest patios, dry-aged steaks, and a globally-inspired raw bar. Michelin Guide recognized. A good option for a classic steak dinner without old-school chophouse stuffiness. Reservations recommended.", mapQuery:"Guard and Grace, 1801 California St, Denver, CO 80202", link:"https://www.guardandgrace.com/", linkLabel:"Website", phone:"(303) 293-8500" },
+    { cat:"restaurants", name:"Panzano", dist:5, meta:"Northern Italian · $$$", desc:"A longstanding downtown Italian spot inside the Kimpton Hotel Monaco, known for handmade pasta, a solid weekday happy hour, and a house bakery producing much of its own bread. Reliable rather than trendy — a good business-lunch-turned-date-night option. Reservations recommended for dinner.", mapQuery:"Panzano, 909 17th St, Denver, CO 80202", link:"https://www.panzano-denver.com/", linkLabel:"Website", phone:"(303) 296-3525" },
+    { cat:"restaurants", name:"Work & Class", dist:5.5, meta:"Latin American · $$$", desc:"Chef Dana Rodriguez's RiNo restaurant blends Mexican, Venezuelan, and Southern influences into a lively, unpretentious menu — the chile relleno and short rib are standouts. Dinner-only, closed Mondays and Tuesdays. Walk-ins possible but reservations are smarter on weekends.", mapQuery:"Work & Class, 2500 Larimer St, Denver, CO 80205", link:"https://www.workandclassdenver.com/", linkLabel:"Website", phone:"(303) 292-0700" },
+    { cat:"restaurants", name:"Machete Tequila + Tacos", dist:8, meta:"Mexican / Tequila Bar · $$", desc:"Colorful, festive taco-and-tequila spot with a serious agave spirits list and a menu of inventive tacos beyond the standard lineup. Good happy hour, lively bar scene. This Cherry Creek location (and the Union Station one) are open; their old Colfax spot has closed.", mapQuery:"Machete Tequila + Tacos, 2817 E 3rd Ave, Denver, CO 80206", link:"https://machetedenver.com/", linkLabel:"Website", phone:"(303) 333-1567" },
+    { cat:"restaurants", name:"Sushi Den", dist:8.5, meta:"Japanese / Sushi · $$$", desc:"Widely considered Denver's best sushi, run by the Kizaki family since 1985, with fish flown in directly from Tokyo's markets several times a week. The Old South Pearl Street strip it anchors is worth a stroll on its own. Reservations essential — books up fast, especially weekends.", mapQuery:"Sushi Den, 1487 S Pearl St, Denver, CO 80210", link:"https://sushiden.net/", linkLabel:"Website", phone:"(303) 777-0826" },
+    { cat:"restaurants", name:"Madeline", dist:6.5, meta:"New American, Ingredient-Focused · $$$", desc:"Chef Quincy Cherrett's 2026 debut restaurant, opened in the former Fruition space after that 18-year Denver institution closed in January 2025. Early word is seasonal, technique-driven, ingredient-first cooking. It's new enough that we can't vouch for long-term consistency — call ahead or check recent reviews before building a trip night around it.", mapQuery:"1313 E 6th Ave, Denver, CO 80218" },
+    { cat:"restaurants", name:"The Fort", dist:14, meta:"Historic Game & Steakhouse · $$$$", desc:"A foothills institution built as a replica 1830s fur-trading fort, famous for serving more buffalo than any independent restaurant in the country alongside elk, quail, and other \"Foods of the Old West.\" A destination dinner with mountain scenery on the drive out — easy to pair with a Red Rocks visit. Reservations recommended, especially for sunset seating.", mapQuery:"The Fort Restaurant, 19192 CO-8, Morrison, CO 80465", link:"https://www.thefort.com/", linkLabel:"Website", phone:"(720) 689-9894" },
+    // ---- Breweries & Bars ----
+    { cat:"breweries", name:"Joyride Brewing Company", dist:1, meta:"Craft Brewery · $$", desc:"A neighborhood taproom essentially walking distance from Sloan's Lake, pouring a solid, unpretentious lineup of IPAs, lagers, and rotating seasonals. Low-key and dog-friendly — about as close as it gets to your homebase for a first-night-in-town pint.", mapQuery:"Joyride Brewing Company, 2501 Sheridan Blvd, Edgewater, CO 80214", link:"https://www.joyridebrewing.com/", linkLabel:"Website", phone:"(720) 432-7560" },
+    { cat:"breweries", name:"Odell Brewing – Sloan's Lake Brewhouse", dist:1.5, meta:"Brewery & Beer Garden · $$", desc:"Fort Collins-based Odell's Denver outpost, with a soaring taproom and a standout rooftop patio overlooking Sloan's Lake. Full food menu alongside 16+ taps — a great sunset-patio option that's genuinely close to home.", mapQuery:"Odell Brewing Sloan's Lake Brewhouse, 1625 Perry St, Denver, CO 80204", link:"https://odellbrewing.com/locations/sloans-lake-brewhouse", linkLabel:"Website", phone:"(303) 376-3777" },
+    { cat:"breweries", name:"Williams & Graham", dist:2.5, meta:"Speakeasy Cocktail Bar · $$$", desc:"Denver's best-known speakeasy — enter through a fake bookshelf door in what looks like a used bookstore. Meticulously crafted cocktails, low lighting, and a strict no-loud-talking vibe make it a splurge-worthy date-night stop. Reservations essentially required (2-hour seating windows); walk-in space is very limited.", mapQuery:"Williams & Graham, 3160 Tejon St, Denver, CO 80211", link:"https://www.williamsandgraham.com/", linkLabel:"Website", phone:"(303) 997-8886" },
+    { cat:"breweries", name:"Prost Brewing", dist:3, meta:"German Biergarten · $$", desc:"An authentically German brewhouse (traditional decoction mash brewing, imported copper kettles) with a proper communal-table biergarten feel in LoHi. Great for pretzels, lagers, and a change of pace from the hop-forward IPA scene. Walk-ins fine, gets busy on nice-weather evenings.", mapQuery:"Prost Brewing, 2540 19th St, Denver, CO 80211", link:"https://www.prostbrewing.com/", linkLabel:"Website", phone:"(303) 729-1175" },
+    { cat:"breweries", name:"Denver Beer Co", dist:3.5, meta:"Craft Brewery · $$", desc:"The original Denver Beer Co. taproom, with a big outdoor beer garden that's one of the more social hangout spots in the Highlands/Platte Valley area. Approachable beer list and a family/dog-friendly patio scene.", mapQuery:"Denver Beer Co, 1695 Platte St, Denver, CO 80202", link:"https://denverbeerco.com/", linkLabel:"Website", phone:"(720) 279-8247" },
+    { cat:"breweries", name:"Wynkoop Brewing Company", dist:5, meta:"Historic Brewpub · $$", desc:"Co-founded by future Colorado governor John Hickenlooper in 1988, this is one of the granddaddies of the American craft beer movement, still pouring in a cavernous historic warehouse building across from Union Station. Pool tables, a straightforward pub menu, and a good beginner-friendly beer lineup.", mapQuery:"Wynkoop Brewing Company, 1634 18th St, Denver, CO 80202", link:"https://www.wynkoop.com/", linkLabel:"Website", phone:"(303) 297-2700" },
+    { cat:"breweries", name:"The Cruise Room", dist:5, meta:"Historic Art Deco Lounge · $$", desc:"Denver's oldest continuously operating bar, opened the day after Prohibition's repeal in 1933, modeled after a lounge on the Queen Mary ocean liner. Narrow, dim, art deco, and full of atmosphere — order a classic Manhattan and soak it in. No reservations; it's small, so early evening is your best bet for a seat.", mapQuery:"The Cruise Room, Oxford Hotel, 1600 17th St, Denver, CO 80202", link:"https://www.theoxfordhotel.com/eat-drink/the-cruise-room", linkLabel:"Website", phone:"(303) 825-1107" },
+    { cat:"breweries", name:"Great Divide Brewery & Roadhouse", dist:5.5, meta:"Brewery & Gastropub · $$", desc:"Great Divide's newer RiNo location (their original downtown Arapahoe St taproom closed in mid-2025) — a bigger, food-forward space serving brunch through dinner alongside their well-known Titan IPA and barrel-aged stouts. Solid burgers and a rotating tap list.", mapQuery:"Great Divide Brewery & Roadhouse, 3040 Blake St, Denver, CO 80205", link:"https://greatdividebreweryandroadhouse.com/", linkLabel:"Website", phone:"(720) 477-0813" },
+    { cat:"breweries", name:"Our Mutual Friend Brewing", dist:5.5, meta:"Craft Brewery · $$", desc:"A RiNo staple known for approachable, well-balanced beers and a laid-back taproom that feels more neighborhood-hangout than brewery-tour-stop. Good starting point for a RiNo brewery crawl since Ratio Beerworks and Great Divide are both a short walk away.", mapQuery:"Our Mutual Friend Brewing, 2810 Larimer St, Denver, CO 80205", link:"https://omfbeer.com/", linkLabel:"Website", phone:"(303) 296-3441" },
+    { cat:"breweries", name:"Ratio Beerworks", dist:5.5, meta:"Craft Brewery · $$", desc:"A RiNo taproom with a strong hazy IPA and pilsner lineup and a fun, unfussy atmosphere — frequently hosts trivia and other events. Easy to pair with Our Mutual Friend and Great Divide for a walkable RiNo beer crawl.", mapQuery:"Ratio Beerworks, 2920 Larimer St, Denver, CO 80205", link:"https://ratiobeerworks.com/", linkLabel:"Website", phone:"(303) 997-8288" },
+    { cat:"breweries", name:"Bierstadt Lagerhaus", dist:5.5, meta:"German-Style Lager Brewery · $$", desc:"A lagers-only brewpub in RiNo dedicated to traditional German brewing techniques — the Slow Pour Pils has a cult following among Denver beer nerds. More food-forward than a typical taproom, with a proper pub menu. Reservations helpful for dinner-hour visits.", mapQuery:"Bierstadt Lagerhaus, 2875 Blake St, Denver, CO 80205", link:"https://www.bierstadtlager.com/", linkLabel:"Website", phone:"(720) 570-7824" },
+    { cat:"breweries", name:"Death & Co", dist:5.5, meta:"Craft Cocktail Bar · $$$", desc:"The Denver outpost of the acclaimed NYC cocktail bar, inside The Ramble Hotel in RiNo — meticulous, bartender-driven cocktails in a moody, design-forward space. One of Denver's most acclaimed drink programs. Reservations recommended, walk-in bar seats sometimes available.", mapQuery:"Death & Co, The Ramble Hotel, 1280 25th St, Denver, CO 80205", link:"https://deathandcompany.com/", linkLabel:"Website", phone:"(720) 330-2660" },
+    { cat:"breweries", name:"Cerebral Brewing", dist:7, meta:"Craft Brewery (Hazy IPA) · $$", desc:"A Congress Park/Bluebird District brewery with an outsized national reputation for hazy IPAs and barrel-aged sours despite its small taproom footprint. Rotating food trucks on-site, pet-friendly patio. Worth the extra few miles if you're a beer nerd.", mapQuery:"Cerebral Brewing, 1477 Monroe St, Denver, CO 80206", link:"https://cerebralbrewing.com/", linkLabel:"Website", phone:"(303) 865-7341" },
+    // ---- Coffee & Bakeries ----
+    { cat:"coffee", name:"Huckleberry Roasters", dist:2.5, meta:"Third-Wave Coffee Roaster · $", desc:"A Denver-grown roaster with several cafes around the city; the Tennyson St location sits in the walkable Berkeley/Highlands retail strip. Clean, well-dialed-in espresso and pour-overs in a minimalist cafe setting. Good stop before a Tennyson St shopping stroll.", mapQuery:"Huckleberry Roasters, 4040 Tennyson St, Denver, CO 80212", link:"https://huckleberryroasters.com/", linkLabel:"Website" },
+    { cat:"coffee", name:"Middle State Coffee (LiddleState)", dist:3, meta:"Coffee Roaster & Bakery · $", desc:"The smaller second location of this well-regarded Baker-neighborhood roaster, tucked into historic Potter Highlands. Excellent espresso plus a solid pastry case — a good quiet-morning alternative to the bigger LoHi cafes nearby.", mapQuery:"Middle State Coffee, 2622 W 32nd Ave, Denver, CO 80211", link:"https://middlestatecoffee.com/", linkLabel:"Website", phone:"(720) 287-1401" },
+    { cat:"coffee", name:"Amethyst Coffee Company", dist:3.5, meta:"Specialty Coffee · $", desc:"Beloved for meticulous pour-overs and moody, minimalist cafe design, Amethyst relocated to Denver's Berkeley neighborhood after its original downtown Broadway location closed. A favorite among Denver's specialty-coffee crowd; smaller space so seating can be tight.", mapQuery:"Amethyst Coffee Company, 4999 W 44th Ave, Denver, CO 80212", link:"https://amethystcoffee.co/", linkLabel:"Website" },
+    { cat:"coffee", name:"Sweet Bloom Coffee Roasters", dist:3, meta:"Micro-Roaster · $", desc:"A tiny, garage-adjacent roastery in Lakewood with an outsized reputation among coffee obsessives for meticulous single-origin sourcing and roasting. Morning-only hours (roughly 7am–1pm) and no-frills seating — this is about the coffee, not the ambiance.", mapQuery:"Sweet Bloom Coffee Roasters, 1619 N Reed St, Lakewood, CO 80214", link:"https://sweetbloomcoffee.com/", linkLabel:"Website", phone:"(303) 261-5954" },
+    { cat:"coffee", name:"Little Owl Coffee", dist:5, meta:"Specialty Coffee · $", desc:"A polished, design-forward cafe near Union Station with excellent espresso drinks and a bright, plant-filled interior. Good central meeting spot if you're doing downtown sightseeing. Multiple Denver locations (LoHi, the Populus hotel) if this one's inconvenient.", mapQuery:"Little Owl Coffee, 1555 Blake St, Denver, CO 80202", link:"https://www.littleowlcoffee.com/", linkLabel:"Website", phone:"(720) 328-5574" },
+    { cat:"coffee", name:"Novo Coffee", dist:5, meta:"Specialty Coffee Roaster · $", desc:"One of Denver's longest-running specialty roasters, with several cafe locations around downtown. Reliable, well-balanced espresso and drip coffee in a straightforward coffee-shop setting — a solid everyday option rather than a destination in itself.", mapQuery:"Novo Coffee, 1600 Glenarm Pl, Denver, CO 80202", link:"https://novocoffee.com/", linkLabel:"Website", phone:"(303) 999-0077" },
+    { cat:"coffee", name:"Pablo's Coffee", dist:5.5, meta:"Neighborhood Coffeehouse · $", desc:"A longtime Capitol Hill coffeehouse with a loyal local following, comfortable lounge seating, and a laid-back, un-hurried vibe that's a little different from the sleeker specialty cafes downtown. Good for settling in with a laptop or book.", mapQuery:"Pablo's Coffee, 630 E 6th Ave, Denver, CO 80203", link:"https://www.pabloscoffee.com/", linkLabel:"Website", phone:"(303) 744-3323" },
+    { cat:"coffee", name:"Rosenberg's Bagels & Delicatessen", dist:6, meta:"NY-Style Bagel Bakery & Deli · $", desc:"Denver's best-regarded New York-style bagel spot, boiled and baked in house daily, paired with a proper deli counter (lox, pastrami, whitefish salad). Morning lines can get long on weekends — go early. A genuine \"Denver doesn't usually get bagels right, but this place does\" favorite.", mapQuery:"Rosenberg's Bagels, 725 E 26th Ave, Denver, CO 80205", link:"https://rosenbergsbagels.com/", linkLabel:"Website", phone:"(720) 440-9880" },
+    { cat:"coffee", name:"Corvus Coffee Roasters", dist:7.5, meta:"Specialty Coffee Roaster · $", desc:"A well-regarded South Broadway roaster known for careful sourcing and a laid-back cafe that doubles as a community hangout. Multiple metro locations. Worth the drive if you want a proper specialty-coffee pilgrimage stop.", mapQuery:"Corvus Coffee Roasters, 1740 S Broadway, Denver, CO 80210", link:"https://corvuscoffee.com/", linkLabel:"Website", phone:"(303) 715-1740" },
+    { cat:"coffee", name:"Rebel Bread", dist:7, meta:"Artisan Bread Bakery & Cafe · $", desc:"A South Broadway bakery-cafe turning out naturally leavened breads and pastries, plus sandwiches built on their own loaves. Good coffee-and-pastry stop if you're browsing the South Broadway antique-row shops.", mapQuery:"Rebel Bread, 675 S Broadway, Denver, CO 80209", link:"https://rebelbread.com/", linkLabel:"Website" },
+    // ---- Ice Cream & Desserts ----
+    { cat:"sweets", name:"Little Man Ice Cream", dist:3, meta:"Iconic Ice Cream Parlor · $", desc:"Denver's single most iconic ice cream stop — a giant cream-can-shaped building in LoHi that's been a local landmark for years. House-made flavors, a whimsical exterior perfect for photos, and lines that can stretch around the building on summer evenings (arrive early or late to avoid the worst of it). A genuine must-do rather than just a dessert stop.", mapQuery:"Little Man Ice Cream, 2620 16th St, Denver, CO 80211", link:"https://littlemanicecream.com/", linkLabel:"Website", phone:"(303) 455-3811" },
+    { cat:"sweets", name:"High Point Creamery", dist:2.5, meta:"Artisan Ice Cream · $", desc:"Small-batch, inventive artisan ice cream — think unusual seasonal flavors alongside solid classics — with several locations around the city. The Tennyson St shop fits naturally into a Berkeley neighborhood evening stroll.", mapQuery:"High Point Creamery, 3977 Tennyson St, Denver, CO 80212", link:"https://highpointcreamery.com/", linkLabel:"Website", phone:"(720) 805-0077" },
+    { cat:"sweets", name:"Voodoo Doughnut", dist:5, meta:"Novelty Doughnut Shop · $", desc:"The Denver outpost of Portland's cult-favorite doughnut chain, known for over-the-top novelty creations (bacon maple bars, cereal-topped rings) alongside solid classics. Open very late, so it doubles as a post-bar-crawl stop in LoDo.", mapQuery:"Voodoo Doughnut, 1520 Champa St, Denver, CO 80202", link:"https://www.voodoodoughnut.com/", linkLabel:"Website" },
+    { cat:"sweets", name:"Sweet Cooie's", dist:6.5, meta:"Ice Cream & Confectionery · $", desc:"A classic-inspired confectionery in Congress Park from the Little Man Ice Cream team, combining house-made truffles and candies with ice cream flavors from its sister shop. A sweeter, more old-fashioned-candy-shop vibe than a straight ice cream parlor.", mapQuery:"Sweet Cooie's, 3506 E 12th Ave, Denver, CO 80206", link:"https://sweetcooies.com/", linkLabel:"Website", phone:"(720) 550-7140" },
+    { cat:"sweets", name:"Liks Ice Cream", dist:6, meta:"Neighborhood Ice Cream Parlor · $", desc:"A family-owned Capitol Hill creamery with a devoted neighborhood following and a rotating menu of inventive, small-batch flavors. Less flashy than Little Man, but locals often rank it just as highly.", mapQuery:"Liks Ice Cream, 2039 E 13th Ave, Denver, CO 80206", link:"https://liksicecream.com/", linkLabel:"Website", phone:"(303) 321-2370" },
+    { cat:"sweets", name:"Bonnie Brae Ice Cream", dist:8.5, meta:"Classic Neighborhood Ice Cream Shop · $", desc:"A Denver tradition since 1986, serving classic hand-scooped ice cream in the quiet, leafy Bonnie Brae neighborhood. Old-school in the best way — no gimmicks, just consistently good ice cream.", mapQuery:"Bonnie Brae Ice Cream, 799 S University Blvd, Denver, CO 80209", link:"https://www.bonniebraeicecream.com/", linkLabel:"Website", phone:"(303) 777-0808" },
+    { cat:"sweets", name:"Hammond's Candies Factory & Store", dist:7.5, meta:"Historic Candy Factory & Free Tour · $", desc:"A century-old, still-handcrafting candy company offering free factory tours (every 30 minutes, walk-ins welcome based on availability) where you can watch candy canes and ribbon candy pulled and cut by hand. A fun activity-plus-dessert stop rather than just a sweets shop — book the tour slot ahead if you can.", mapQuery:"Hammond's Candies, 5735 Washington St, Denver, CO 80216", link:"https://hammondscandies.com/", linkLabel:"Website", phone:"(303) 333-5588" },
+    // ---- Groceries ----
+    { cat:"groceries", name:"King Soopers – Sloan's Lake/Edgewater", dist:1, meta:"Full-Service Supermarket · $$", desc:"Colorado's dominant Kroger-family grocery chain, and the closest full supermarket to your homebase — pharmacy, deli, bakery, and fuel station on-site. Your practical one-stop for stocking a rental kitchen.", mapQuery:"King Soopers, 1725 Sheridan Blvd, Edgewater, CO 80214", link:"https://www.kingsoopers.com/", linkLabel:"Website", phone:"(303) 237-4988" },
+    { cat:"groceries", name:"Target – Edgewater", dist:1, meta:"Big-Box Grocery & Essentials · $$", desc:"A full Target with a proper grocery section, right in the Edgewater Marketplace — useful for one stop covering groceries plus any travel essentials, kitchen basics, or gear you forgot to pack.", mapQuery:"Target, 1985 Sheridan Blvd, Edgewater, CO 80214", link:"https://www.target.com/", linkLabel:"Website", phone:"(720) 274-3665" },
+    { cat:"groceries", name:"Sprouts Farmers Market", dist:3.5, meta:"Natural & Specialty Grocery · $$", desc:"A produce-forward natural foods grocer, good for fresh fruit, a solid bulk-foods section, and easier-to-find specialty/dietary items than a standard supermarket. Smaller footprint than King Soopers, so quicker in-and-out shopping.", mapQuery:"Sprouts Farmers Market, 3725 Kipling St, Wheat Ridge, CO 80033", link:"https://www.sprouts.com/", linkLabel:"Website", phone:"(720) 305-0219" },
+    { cat:"groceries", name:"Natural Grocers", dist:4, meta:"Organic & Health Foods Grocer · $$", desc:"A Colorado-founded natural/organic grocery chain, good for organic produce, supplements, and health-food staples if that's your household's shopping style.", mapQuery:"Natural Grocers, 4900 Kipling St, Wheat Ridge, CO 80033", link:"https://www.naturalgrocers.com/", linkLabel:"Website", phone:"(720) 403-8070" },
+    { cat:"groceries", name:"Applejack Wine & Spirits", dist:3.5, meta:"Wine, Beer & Spirits Superstore · $$", desc:"One of the largest independent liquor stores in the country — a genuinely enormous selection of Colorado craft beer, wine, and spirits under one roof. Worth a stop to stock the rental's bar with local brews, or grab bottles for a Casa Bonita or Buckhorn Exchange pairing.", mapQuery:"Applejack Wine & Spirits, 3320 Youngfield St, Wheat Ridge, CO 80033", link:"https://www.applejack.com/", linkLabel:"Website", phone:"(303) 233-3331" },
+    { cat:"groceries", name:"Trader Joe's", dist:7.5, meta:"Specialty/Value Grocery · $$", desc:"The nearest Trader Joe's to your homebase, along the Sheridan Blvd corridor north of Denver proper. Good for the usual TJ's snack/wine/prepared-food staples — a bit of a haul compared to the Edgewater options, so plan it as a dedicated trip rather than a quick stop.", mapQuery:"Trader Joe's, 9350 Sheridan Blvd, Westminster, CO 80031", link:"https://www.traderjoes.com/", linkLabel:"Website" }
+  ];
+  FOOD.forEach(function(item, i){ item.id = "food-" + i; });
+  var FOOD_CATEGORIES = [
+    { value:"restaurants", label:"Restaurants", icon:"M7 3 v7 a2 2 0 0 0 4 0 V3 M9 10 v11 M17 3 c-2 0-3 2-3 5 s1 4 3 4 v9" },
+    { value:"breweries", label:"Breweries & Bars", icon:"M4 7 h11 v12 a2 2 0 0 1 -2 2 H6 a2 2 0 0 1 -2 -2 Z M15 9 h3 a2 2 0 0 1 2 2 v4 a2 2 0 0 1 -2 2 h-3 M6 7 V3 h7 v4 M7 11 h7" },
+    { value:"coffee", label:"Coffee & Bakeries", icon:"M4 8 h13 v6 a5 5 0 0 1 -5 5 H9 a5 5 0 0 1 -5 -5 Z M17 9 h2 a2 2 0 0 1 2 2 v1 a2 2 0 0 1 -2 2 h-2 M7 3 c0 1.2 1 1.2 1 2.4 M11 3 c0 1.2 1 1.2 1 2.4 M15 3 c0 1.2 1 1.2 1 2.4" },
+    { value:"sweets", label:"Ice Cream & Desserts", icon:"M7 10 h10 l-5 11 z M5.5 10 a6.5 5 0 0 1 13 0 Z M9 5.5 a1.5 1.5 0 1 1 3 0 a1.5 1.5 0 0 1 3 0" },
+    { value:"groceries", label:"Groceries", icon:"M3 4 H5 L7 15 H17 L19 7 H6 M9 19 a1 1 0 1 0 2 0 a1 1 0 0 0 -2 0 M15 19 a1 1 0 1 0 2 0 a1 1 0 0 0 -2 0" }
+  ];
+
+  var NEIGHBORHOODS = [
+    // ---- Downtown & Union Station ----
+    { cat:"downtown-core", name:"LoDo (Lower Downtown)", dist:4.5, meta:"Historic Warehouse District &middot; Nightlife &amp; Baseball", desc:"Denver's original 1858 townsite, a 23-block National Historic District of red-brick Victorian warehouses now filled with bars, restaurants, breweries, and galleries. The name (coined in 1983, echoing NYC's SoHo) covers Larimer Square — Denver's only intact 19th-century commercial block, saved from urban-renewal demolition by preservationist Dana Crawford in the 1960s — as well as Coors Field, home of the Colorado Rockies since 1995. Once skid row after passenger rail declined mid-century, LoDo bounced back through 1988 historic-district zoning and pioneering businesses like Wynkoop Brewing Co.", highlights:"Larimer Square's lit-up Victorian storefronts, a Rockies game at Coors Field, the original brewpub scene along Blake and Wynkoop streets.", img:"https://upload.wikimedia.org/wikipedia/commons/1/12/Larimer_Square%2C_Denver_%286067734197%29.jpg", mapQuery:"Larimer Square, 1430 Larimer St, Denver, CO 80202", link:"https://lodona.org/", linkLabel:"Neighborhood info" },
+    { cat:"downtown-core", name:"Golden Triangle (Museum District)", dist:5, meta:"Arts &amp; Culture &middot; Museum District", desc:"Wedged between Colfax Avenue, Speer Boulevard, and Broadway just south of downtown, this compact district packs in more museums per block than almost anywhere in the city. It's anchored by the Denver Art Museum's angular Hamilton Building and the Clyfford Still Museum next door, which holds about 3,125 works — roughly 93% of the Abstract Expressionist painter's lifetime output. The surrounding blocks also hold the History Colorado Center, the State Capitol, and Civic Center Park, plus a dozen smaller galleries and cafes.", highlights:"Denver Art Museum, Clyfford Still Museum, Civic Center Park (frequent festivals and a summer farmers' market).", img:"https://upload.wikimedia.org/wikipedia/commons/e/e6/Denver_Art_Museum2_Denver_Colorado_2024.jpg", mapQuery:"Denver Art Museum, 100 W 14th Ave Pkwy, Denver, CO 80204", link:"https://www.denverartmuseum.org/en/explore-golden-triangle", linkLabel:"District info" },
+    { cat:"downtown-core", name:"Union Station Area", dist:4.5, meta:"Transit Hub &middot; Dining &amp; Historic Landmark", desc:"Denver Union Station is the ornate 1914 Beaux-Arts train hall at the heart of LoDo, and since a 2014 renovation it's become as much a dining and social destination as a transportation hub — its Great Hall now serves as the lobby for the boutique Crawford Hotel, alongside a cocktail bar and board-game tables where locals linger. All of RTD's rail lines converge here along with Amtrak and regional buses, and the surrounding redevelopment turned former rail yards into one of downtown's most active blocks.", highlights:"The restored Great Hall, the restaurants and shops in and around the station, the adjoining Dairy Block alley with Milk Market and rooftop bars.", img:"https://upload.wikimedia.org/wikipedia/commons/a/a4/Denver_Union_Station_-_June_2022_-_Sarah_Stierch_01.jpg", mapQuery:"Denver Union Station, 1701 Wynkoop St, Denver, CO 80202", link:"https://www.rtd-denver.com/open-records/reports-and-policies/facts-and-figures/denver-union-station", linkLabel:"Station info" },
+    // ---- Arts, Culture & Nightlife ----
+    { cat:"arts-nightlife", name:"RiNo Art District", dist:6, meta:"Arts District &middot; Breweries &amp; Street Art", desc:"Former industrial rail yards along the South Platte River, reinvented since the 2000s into Denver's densest concentration of street art, galleries, and craft breweries. More than 80 murals cover alley walls and facades across the district, refreshed regularly as artists paint over older work — a free self-guided mural tour is one of the most popular things to do here. It may also have the city's highest brewery density, anchored by spots like Ratio Beerworks and Our Mutual Friend, alongside the Denver Central Market food hall. The district hosts a First Friday Art Walk each month.", highlights:"Mural-hunting on Larimer/Walnut/Blake streets, a brewery crawl, Denver Central Market.", img:"https://upload.wikimedia.org/wikipedia/commons/8/86/Rumtum%27s_sea_serpent_on_a_house_in_Denver.jpg", mapQuery:"3400 Larimer St, Denver, CO 80205", link:"https://rinoartdistrict.org/", linkLabel:"District info" },
+    { cat:"arts-nightlife", name:"Five Points", dist:5, meta:"Historic &middot; Jazz Heritage", desc:"Denver's oldest neighborhood outside the original downtown core, Five Points became the city's first predominantly Black neighborhood in the early 1900s after discriminatory housing practices confined Black residents there; by the 1920s it held roughly 90% of Denver's Black population. Along Welton Street it earned the nickname \"Harlem of the West\" — from the 1920s through the 1950s, more than fifty clubs hosted jazz greats like Duke Ellington, Billie Holiday, and Miles Davis, centered on the Rossonian Hotel and Lounge. Urban renewal scattered much of the community from the 1960s onward; the neighborhood is now in the middle of a jazz-heritage revival alongside new development.", highlights:"The historic Rossonian Hotel building, the Blair-Caldwell African American Research Library, jazz events along the Welton corridor.", img:"https://upload.wikimedia.org/wikipedia/commons/e/e0/Five_Points%2C_Denver%2C_seen_from_the_California_Zephyr_-_June_2022_-_Sarah_Stierch.jpg", mapQuery:"2650 Welton St, Denver, CO 80205", link:"https://en.wikipedia.org/wiki/Five_Points,_Denver", linkLabel:"Neighborhood history" },
+    { cat:"arts-nightlife", name:"Capitol Hill", dist:6, meta:"Historic &middot; Eclectic &amp; Colfax Nightlife", desc:"Denver's densest, most eclectic close-in neighborhood fans out from the gold-domed State Capitol through blocks of Victorian mansions, converted apartments, and dive bars. East Colfax Avenue — its main commercial spine and reputedly one of the longest continuous commercial streets in the country — was named to flatter an 1860s House Speaker into backing Colorado statehood, and later gained a reputation as \"the wickedest street in America.\" Its best-known landmark is the Molly Brown House Museum, the 1889 home of Titanic survivor and philanthropist Margaret \"Molly\" Brown.", highlights:"The Molly Brown House Museum, historic mansion-lined blocks around Grant/Pennsylvania streets, Colfax's music venues and diverse dining.", img:"https://upload.wikimedia.org/wikipedia/commons/4/42/Molly_Brown_House.JPG", mapQuery:"Colorado State Capitol, 200 E Colfax Ave, Denver, CO 80203", link:"https://coloradoencyclopedia.org/article/denvers-capitol-hill", linkLabel:"Neighborhood history" },
+    { cat:"arts-nightlife", name:"Baker / South Broadway (SoBo)", dist:6.5, meta:"Historic &middot; Antiques &amp; Indie Culture", desc:"Baker, just south of downtown, is one of Denver's oldest neighborhoods — over 80% of it was built before 1900, and it's listed on the National Register of Historic Places for its dense stock of restored Victorian homes. Its commercial spine, South Broadway (\"SoBo\"), is famous for Antique Row, nearly 100 antique shops, alongside vintage clothing stores, dive bars, an arthouse cinema, and live-music venues that give it a grittier, more bohemian feel than Cherry Creek across town.", highlights:"Browsing Antique Row's dealers, South Broadway's bar and live-music scene, the well-preserved late-1800s/early-1900s residential blocks.", img:"https://upload.wikimedia.org/wikipedia/commons/d/de/Baker_historic_district_photo_%2849823684001%29.jpg", mapQuery:"S Broadway & E Alameda Ave, Denver, CO 80209", link:"https://www.denver.org/neighborhoods/south-broadway/", linkLabel:"Neighborhood info" },
+    // ---- Parks & Established Neighborhoods ----
+    { cat:"parks-upscale", name:"Cherry Creek", dist:8, meta:"Upscale &middot; Shopping &amp; Dining", desc:"Southeast of downtown, Cherry Creek is Denver's high-end shopping and residential district, built around two adjoining areas: the enclosed Cherry Creek Shopping Center (160+ stores) and Cherry Creek North, sixteen blocks of independently owned boutiques, galleries, restaurants, and bars. It's a quieter, more polished counterpoint to LoDo/RiNo's grittier energy, and connects to downtown via the paved Cherry Creek Trail, a popular biking and running route.", highlights:"Cherry Creek North's independent boutiques and galleries, the Cherry Creek Shopping Center, biking or strolling the Cherry Creek Trail toward downtown.", img:"https://upload.wikimedia.org/wikipedia/commons/a/a6/FoundersCCDen.JPG", mapQuery:"Cherry Creek Shopping Center, 3000 E 1st Ave, Denver, CO 80206", link:"https://cherrycreeknorth.com/", linkLabel:"District info" },
+    { cat:"parks-upscale", name:"Washington Park", dist:7.5, meta:"Residential &middot; Park &amp; Recreation", desc:"Centered on 165-acre Washington Park (created 1899, redesigned in French formal style in 1908), \"Wash Park\" is one of Denver's most sought-after residential areas — a mile-long green space with two lakes, flower gardens, a 1913 boathouse, and a perimeter trail constantly full of runners and cyclists. Surrounding blocks, mostly built 1900–1940, are lined with brick bungalows and Denver Squares giving it a settled, small-town feel just a few miles from downtown.", highlights:"The park's perimeter path and lily-pond gardens, paddleboating on Smith Lake, the small commercial strips on South Gaylord and South Pearl streets.", img:"https://upload.wikimedia.org/wikipedia/commons/4/4e/Washington_Park_Denver.JPG", mapQuery:"Washington Park, Denver, CO 80210", link:"https://www.wpena.org/our-history", linkLabel:"Neighborhood history" },
+    { cat:"parks-upscale", name:"City Park", dist:7, meta:"Museums &middot; Green Space", desc:"City Park is both Denver's largest park (330 acres) and the residential neighborhood around it, laid out with two lakes and a boathouse. It's home to two of Denver's biggest attractions — the Denver Zoo and the Denver Museum of Nature and Science — and offers one of the city's best skyline photo ops from the museum's Sky Terrace, looking across Ferril Lake toward downtown with the Rockies behind it. Surrounding blocks are full of early-1900s brick Denver Square homes.", highlights:"Denver Zoo, Denver Museum of Nature and Science, the skyline view across Ferril Lake.", img:"https://upload.wikimedia.org/wikipedia/commons/5/5d/City_Park%2C_Denver.jpg", mapQuery:"City Park, Denver, CO 80205", link:"https://cityparkalliance.org/places-to-visit/", linkLabel:"Park info" },
+    // ---- Near Your Homebase (West Denver) ----
+    { cat:"near-homebase", name:"Sloan's Lake / Edgewater / Berkeley", dist:1.5, meta:"Local &middot; Lake, Parks &amp; Neighborhood Breweries", desc:"This cluster of neighborhoods just west of downtown — Sloan's Lake, the independent city of Edgewater, and Berkeley — sits right around your homebase and centers on Sloan's Lake, a roughly 177-acre lake formed accidentally in the 1860s when a rancher's well tapped an aquifer and flooded his land overnight. The lake's north shore once held Manhattan Beach, one of the largest amusement parks west of the Mississippi (1891–1914); today the loop trail is popular for running and biking with downtown skyline views across the water. Berkeley overlaps with the Tennyson Street restaurant scene, while Edgewater has redeveloped its old shopping-center site into a walkable public market.", highlights:"The Sloan's Lake loop trail, Edgewater Public Market, Tennyson Street's restaurants and shops in Berkeley.", img:"https://upload.wikimedia.org/wikipedia/commons/5/5b/Looking_east_from_Sloan%27s_Lake_towards_Downtown_Denver_%281_July_2008%29.jpg", mapQuery:"Sloan's Lake Park, Denver, CO 80204", link:"https://www.edgewaterco.gov/living-here/welcome-to-edgewater/edgewater-history", linkLabel:"Area history" },
+    { cat:"near-homebase", name:"Highlands / LoHi", dist:3, meta:"Trendy &middot; Restaurants &amp; Boutiques", desc:"Sitting on a bluff immediately northwest of downtown, \"the Highlands\" is really a cluster of micro-districts — Highland Square, LoHi closer to downtown, and Tennyson Street further north — that together form one of Denver's best walkable dining corridors. LoHi mixes century-old Victorian cottages with sleek new construction and rooftop patios overlooking the downtown skyline, while Highland Square and Tennyson lean toward daytime boutique and bakery browsing. The area gentrified rapidly in the 2000s–2010s from a working-class immigrant neighborhood into one of Denver's priciest.", highlights:"Dinner along 32nd Avenue's restaurant row, skyline views from the pedestrian bridge over I-25, boutique-hopping on Tennyson Street.", img:"https://upload.wikimedia.org/wikipedia/commons/3/39/Old_Highland_Business_District.JPG", mapQuery:"W 32nd Ave & Lowell Blvd, Denver, CO 80211", link:"https://visitdenverhighlands.com/neighborhood", linkLabel:"Neighborhood info" }
+  ];
+  NEIGHBORHOODS.forEach(function(item, i){ item.id = "nbhd-" + i; });
+  var NEIGHBORHOOD_CATEGORIES = [
+    { value:"downtown-core", label:"Downtown &amp; Union Station", icon:"<path d=\"M4 21 V9 L10 5 V21 M10 12 H4 M14 21 V3 L20 8 V21 M4 21 H20\"/>" },
+    { value:"arts-nightlife", label:"Arts, Culture &amp; Nightlife", icon:"<path d=\"M9 18 V5 l10 -2 v13 M9 18 a3 3 0 1 1 -6 0 a3 3 0 0 1 6 0 M19 16 a3 3 0 1 1 -6 0 a3 3 0 0 1 6 0\"/>" },
+    { value:"parks-upscale", label:"Parks &amp; Established Areas", icon:"<path d=\"M12 3 L7 11 h3 L6 17 h5 v5 h2 v-5 h5 L15 11 h3 Z\"/>" },
+    { value:"near-homebase", label:"Near Your Homebase", icon:"<path d=\"M4 11 L12 4 L20 11 M6 9 v10 h12 v-10\"/>" }
+  ];
+
+  var CITY_INFO = [
+    { title:"Denver Overview & Quick Facts", open:true, html:
+      "<p>Founded <strong>November 22, 1858</strong>, when General William Larimer Jr. staked a claim at the confluence of Cherry Creek and the South Platte River, just after gold was discovered in Cherry Creek that summer &mdash; the start of the Pike's Peak Gold Rush. The rival townsite of Auraria merged in with it in 1860 to form the City of Denver.</p>"
+      + "<p>Population is about <strong>715,000</strong> within city limits (2020 census, likely higher today), with a 10-county metro area of roughly <strong>3.1 million</strong> &mdash; the 19th-largest metro in the country. Elevation is exactly <strong>5,280 feet</strong> &mdash; one mile &mdash; marked at the 13th step on the west side of the State Capitol, the origin of the \"Mile High City\" nickname.</p>"
+      + "<p>Denver sits on the high plains at the edge of the Rockies' Front Range, not in the mountains themselves &mdash; the peaks visible from downtown are still tens of miles away. It's Colorado's capital and largest city, blending a compact historic downtown with a strong outdoor, craft-beer, and cannabis-culture identity.</p>"
+    },
+    { title:"Getting Around", open:false, html:
+      "<p><strong>RTD light rail:</strong> the <strong>A Line</strong> connects Union Station downtown to Denver International Airport in about 37 minutes (airport fare currently around $10 one-way). The <strong>W Line</strong> runs to Golden/Jefferson County, and the <strong>G Line</strong> runs toward Wheat Ridge/Arvada, close to your homebase &mdash; check current schedules before relying on either.</p>"
+      + "<ul><li>Standard local fares: about $2.75 for a 3-hour pass, $5.50 for a day pass, with discounts for seniors, riders with disabilities, and income-qualified riders.</li>"
+      + "<li>Downtown/LoDo meters run roughly $2&ndash;4/hour, enforced Mon&ndash;Sat 8am&ndash;10pm (free Sundays and city holidays); ParkMobile is the official pay-by-phone app.</li>"
+      + "<li>Garages downtown run about $10&ndash;25/day &mdash; pre-booking through SpotHero or ParkWhiz is usually cheaper than driving up and paying at the gate.</li>"
+      + "<li>Some residential blocks (including parts of the Highlands) use permit parking zones with posted time limits &mdash; read signage carefully.</li></ul>"
+      + "<p>Downtown, LoDo, RiNo, and the Highlands are all quite walkable. Rideshare is widely available with a dedicated pickup zone at DEN.</p>"
+      + "<p><a href=\"https://www.rtd-denver.com/\" target=\"_blank\" rel=\"noopener\">RTD schedules &amp; fares<svg class=\"ext-link-icon\" viewBox=\"0 0 24 24\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M7 17 L17 7 M9 7 h8 v8\"/></svg></a></p>"
+    },
+    { title:"Weather & Altitude", open:false, html:
+      "<p><strong>Summer (July):</strong> average highs near 90&ndash;93&deg;F, lows around 60&ndash;67&deg;F. Mornings are usually sunny; clouds build by early-to-mid afternoon with brief but sometimes intense thunderstorms rolling off the foothills &mdash; worth keeping an indoor backup plan for afternoons.</p>"
+      + "<p>Denver's climate is dry and sunny with big day-to-night temperature swings, and snow is possible in almost any month outside summer. The famous \"300 days of sunshine\" claim is overstated &mdash; real clear/mostly-clear-day counts run closer to <strong>245&ndash;255 days a year</strong>, still well above the national average, just not literally 300.</p>"
+      + "<p><strong>Altitude:</strong> at 5,280 ft, true altitude sickness isn't usually a Denver-proper concern (that starts more around 8,000+ ft, if you head into the mountains) &mdash; but visitors from lower elevations often notice faster dehydration, quicker alcohol effects, and shortness of breath on exertion for the first day or two. Drink more water than usual, go easy on alcohol on arrival day, and don't schedule strenuous activity right away. Thinner air also filters less UV, so sunburn happens faster even on cool or cloudy days &mdash; wear sunscreen and sunglasses.</p>"
+    },
+    { title:"Safety & Practical Tips", open:false, html:
+      "<p>Downtown/LoDo is comfortable to walk during the day and early evening; standard big-city caution applies late at night, especially around bar close on weekends. Stick to well-lit main streets (15th, 16th, 17th), and travel in a group where possible. East Colfax Avenue through Capitol Hill has a mixed reputation and merits a bit more street-smarts after dark, though it's also full of legitimate restaurants and music venues.</p>"
+      + "<p><strong>Marijuana:</strong> recreational cannabis is legal in Colorado for adults 21+. No public consumption anywhere &mdash; sidewalks, parks, most hotel rooms, and rental properties without the owner's blessing are all off-limits. It's illegal to transport cannabis across state lines or through the airport in either direction. Purchase/possession limits for out-of-state visitors are described inconsistently across sources &mdash; confirm current limits at the dispensary or via cannabis.colorado.gov before buying.</p>"
+      + "<p><strong>Tipping:</strong> Denver diners are reportedly among the most generous tippers in the country, averaging 19&ndash;21% at full-service restaurants &mdash; 18&ndash;20% is a safe default, and bartenders commonly get $1&ndash;2 per drink.</p>"
+    }
+  ];
+  var HISTORY = [
+    { title:"Founding & Gold Rush Origins (1858–1860)", open:true, html:
+      "<p>Gold was discovered along Cherry Creek in the summer of 1858, sparking the Pike's Peak Gold Rush. On <strong>November 22, 1858</strong>, General William Larimer Jr. staked a claim on a bluff overlooking the confluence of Cherry Creek and the South Platte River, laying cottonwood logs to mark a square-mile townsite he named \"Denver City\" &mdash; flattering Kansas Territorial Governor James W. Denver, in hopes of favorable treatment (Denver had actually already left the governorship by the time news reached the settlement).</p>"
+      + "<p>A rival townsite across the creek, Auraria, merged with Denver City into a single City of Denver in 1860.</p>"
+    },
+    { title:"Growth as a Rail and Mining Hub", open:false, html:
+      "<p>Denver's lasting boom came from railroads more than gold panned locally &mdash; the city became the supply and finance hub for mining camps throughout the Rockies, and a rail spur connecting to the transcontinental line in 1870 cemented it as the region's dominant city.</p>"
+      + "<p><strong>Denver Union Station</strong>, opened in 1881 and rebuilt in its current Beaux-Arts form after an 1894 fire (enlarged again in 1914), became the literal and symbolic gateway to the city, reaching its busiest years around World War II before passenger rail declined with the rise of highways and air travel.</p>"
+    },
+    { title:"Prohibition, the Beat Generation & Mid-Century Denver", open:false, html:
+      "<p>Colorado voters approved statewide prohibition that took effect in 1916, several years ahead of the nationwide 18th Amendment in 1920.</p>"
+      + "<p>In the late 1940s, Denver became an important setting for the <strong>Beat Generation</strong>: Denver-born Neal Cassady &mdash; the inspiration for Dean Moriarty in Jack Kerouac's <em>On the Road</em> &mdash; drew Kerouac and Allen Ginsberg to the city, where the group spent time at spots like the old Colburn Hotel. Kerouac's fictionalized Denver scenes in <em>On the Road</em> (published 1957) remain the city's most famous literary association.</p>"
+    },
+    { title:"Decline and Revival of Lower Downtown (1960s–1990s)", open:false, html:
+      "<p>By the mid-20th century, Lower Downtown's rail-era warehouses had emptied out and the area slid toward skid row. Preservationist Dana Crawford's rescue of <strong>Larimer Square</strong> from urban-renewal demolition in the 1960s planted the seed for a slower revival, formalized when the city designated the 23-block Lower Downtown Historic District in 1988.</p>"
+      + "<p>The turning point was <strong>Coors Field</strong>, which opened in 1995 as home of the expansion Colorado Rockies; built with brick-and-stone detailing to match its warehouse surroundings, it drove a wave of restaurants, breweries (starting with Wynkoop Brewing Co.), lofts, and galleries that transformed LoDo within a decade. Union Station's 2014 renovation and the 2025 overhaul of the 16th Street corridor represent the most recent chapters of that same downtown-revival story.</p>"
+    },
+    { title:"Did You Know?", open:false, html:
+      "<span class=\"fact-line\">The \"Mile High City\" nickname is literal: the 13th step on the west side of the State Capitol is marked at exactly 5,280 feet &mdash; one mile &mdash; above sea level.</span>"
+      + "<span class=\"fact-line\">East Colfax Avenue, Capitol Hill's main drag, is often cited as one of the longest continuous commercial streets in the U.S., and was once dubbed \"the wickedest street in America.\"</span>"
+      + "<span class=\"fact-line\">The famous \"300 days of sunshine\" claim is a stretch &mdash; real clear/mostly-clear-day counts run closer to 245&ndash;255 days a year, though that's still well above the national average.</span>"
+      + "<span class=\"fact-line\">Larimer Square, Denver's oldest block, was nearly bulldozed in a 1960s urban-renewal push before preservationist Dana Crawford saved it &mdash; a decision widely credited with kick-starting Lower Downtown's later revival.</span>"
+      + "<span class=\"fact-line\">Five Points' Rossonian Hotel and Lounge, heart of the neighborhood once nicknamed the \"Harlem of the West,\" hosted jazz legends including Duke Ellington, Billie Holiday, and Miles Davis between the 1930s and 1950s.</span>"
+      + "<span class=\"fact-line\">Beat Generation writers Jack Kerouac and Allen Ginsberg were repeatedly drawn to Denver in the late 1940s by Denver-born Neal Cassady, whose real-life road trips became the basis for On the Road.</span>"
+    }
+  ];
+
+  window.__DENVER_DATA__ = { ACTIVITIES: ACTIVITIES, FOOD: FOOD, NEIGHBORHOODS: NEIGHBORHOODS, CITY_INFO: CITY_INFO, HISTORY: HISTORY, mapsDirUrl: mapsDirUrl, mapsSearchUrl: mapsSearchUrl };
+
+  /* ============ FAVORITES (localStorage) ============ */
+  var FAVORITES_KEY = "denver-favorites";
+
+  function getFavoriteIds(){
+    try{
+      var raw = localStorage.getItem(FAVORITES_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){ return []; }
+  }
+  function isFavorite(id){
+    return getFavoriteIds().indexOf(id) !== -1;
+  }
+  function toggleFavorite(id){
+    var ids = getFavoriteIds();
+    var idx = ids.indexOf(id);
+    if(idx === -1){ ids.push(id); } else { ids.splice(idx, 1); }
+    try{ localStorage.setItem(FAVORITES_KEY, JSON.stringify(ids)); }catch(e){}
+    return idx === -1; // true if item is now favorited
+  }
+  function refreshFavoritesIfActive(){
+    var favTab = document.getElementById("tab-favorites");
+    if(favTab && favTab.classList.contains("active")) drawFavorites();
+  }
+
+  function buildCard(item){
+    var card = document.createElement("div");
+    card.className = "card";
+
+    var top = document.createElement("div");
+    top.className = "card-top";
+    var h3 = document.createElement("h3");
+    h3.textContent = item.name;
+    top.appendChild(h3);
+
+    var actions = document.createElement("div");
+    actions.className = "card-top-actions";
+
+    var badge = document.createElement("span");
+    badge.className = "dist-badge";
+    badge.textContent = (item.dist % 1 === 0 ? item.dist.toFixed(0) : item.dist.toFixed(1)) + " mi";
+    actions.appendChild(badge);
+
+    var starBtn = document.createElement("button");
+    starBtn.type = "button";
+    starBtn.className = "fav-star" + (isFavorite(item.id) ? " active" : "");
+    starBtn.setAttribute("aria-label", "Toggle favorite");
+    starBtn.textContent = isFavorite(item.id) ? "★" : "☆";
+    starBtn.addEventListener("click", function(){
+      var nowFav = toggleFavorite(item.id);
+      starBtn.textContent = nowFav ? "★" : "☆";
+      starBtn.classList.toggle("active", nowFav);
+      refreshFavoritesIfActive();
+    });
+    actions.appendChild(starBtn);
+
+    top.appendChild(actions);
+    card.appendChild(top);
+
+    if(item.meta){
+      var meta = document.createElement("p");
+      meta.className = "card-meta";
+      meta.textContent = item.meta;
+      card.appendChild(meta);
+    }
+
+    if(item.rating){
+      var rating = document.createElement("p");
+      rating.className = "card-rating";
+      rating.textContent = "★ " + item.rating.toFixed(1) + (item.reviews ? " (" + item.reviews + " Google reviews)" : "");
+      card.appendChild(rating);
+    }
+
+    if(item.difficulty || item.tag){
+      var stats = document.createElement("div");
+      stats.className = "hike-stats";
+      var statList = [
+        { text: item.difficulty, cls: item.difficulty ? "difficulty-" + item.difficulty.toLowerCase() : null },
+        { text: item.length },
+        { text: item.routeType },
+        { text: item.elevGain },
+        { text: item.time },
+        { text: item.tag === "reservation" ? "Book Ahead" : item.tag === "free" ? "Free" : null, cls: item.tag === "reservation" ? "tag-reservation" : item.tag === "free" ? "tag-free" : null }
+      ];
+      statList.forEach(function(s){
+        if(!s.text) return;
+        var pill = document.createElement("span");
+        pill.className = "hike-stat" + (s.cls ? " " + s.cls : "");
+        pill.textContent = s.text;
+        stats.appendChild(pill);
+      });
+      card.appendChild(stats);
+    }
+
+    var desc = document.createElement("p");
+    desc.className = "card-desc";
+    desc.textContent = item.desc;
+    card.appendChild(desc);
+
+    if(item.more){
+      var moreDet = document.createElement("details");
+      moreDet.className = "card-more";
+      var moreSum = document.createElement("summary");
+      moreSum.innerHTML = "<span class=\"chev\">&#9656;</span><span class=\"more-label\"></span>";
+      moreDet.appendChild(moreSum);
+      var moreBody = document.createElement("p");
+      moreBody.className = "more-body";
+      moreBody.textContent = item.more;
+      moreDet.appendChild(moreBody);
+      card.appendChild(moreDet);
+    }
+
+    var links = document.createElement("div");
+    links.className = "card-links";
+
+    var dirA = document.createElement("a");
+    dirA.className = "dir-link";
+    dirA.dataset.dest = item.mapQuery || item.name + ", Denver, CO";
+    dirA.href = mapsDirUrl(dirA.dataset.dest);
+    dirA.target = "_blank";
+    dirA.rel = "noopener";
+    dirA.textContent = "Directions →";
+    links.appendChild(dirA);
+
+    if(item.phone){
+      var callA = document.createElement("a");
+      callA.className = "secondary";
+      callA.href = "tel:+1" + item.phone.replace(/\D/g, "");
+      callA.textContent = "Call →";
+      links.appendChild(callA);
+    }
+
+    if(item.link){
+      var infoA = document.createElement("a");
+      infoA.className = "secondary";
+      infoA.href = item.link;
+      infoA.target = "_blank";
+      infoA.rel = "noopener";
+      infoA.textContent = item.linkLabel || "More info";
+      links.appendChild(infoA);
+    }
+
+    card.appendChild(links);
+    return card;
+  }
+
+  function buildNeighborhoodCard(item){
+    var card = document.createElement("div");
+    card.className = "card neighborhood-card";
+
+    if(item.img){
+      var img = document.createElement("img");
+      img.className = "neighborhood-card-img";
+      img.src = item.img;
+      img.alt = item.name;
+      img.loading = "lazy";
+      card.appendChild(img);
+    }
+
+    var body = document.createElement("div");
+    body.className = "neighborhood-card-body";
+
+    var top = document.createElement("div");
+    top.className = "card-top";
+    var h3 = document.createElement("h3");
+    h3.textContent = item.name;
+    top.appendChild(h3);
+
+    var actions = document.createElement("div");
+    actions.className = "card-top-actions";
+
+    var badge = document.createElement("span");
+    badge.className = "dist-badge";
+    badge.textContent = (item.dist % 1 === 0 ? item.dist.toFixed(0) : item.dist.toFixed(1)) + " mi";
+    actions.appendChild(badge);
+
+    var starBtn = document.createElement("button");
+    starBtn.type = "button";
+    starBtn.className = "fav-star" + (isFavorite(item.id) ? " active" : "");
+    starBtn.setAttribute("aria-label", "Toggle favorite");
+    starBtn.textContent = isFavorite(item.id) ? "★" : "☆";
+    starBtn.addEventListener("click", function(){
+      var nowFav = toggleFavorite(item.id);
+      starBtn.textContent = nowFav ? "★" : "☆";
+      starBtn.classList.toggle("active", nowFav);
+      refreshFavoritesIfActive();
+    });
+    actions.appendChild(starBtn);
+    top.appendChild(actions);
+    body.appendChild(top);
+
+    if(item.meta){
+      var meta = document.createElement("p");
+      meta.className = "card-meta";
+      meta.innerHTML = item.meta;
+      body.appendChild(meta);
+    }
+
+    if(item.highlights){
+      var spot = document.createElement("p");
+      spot.className = "spot-line";
+      spot.innerHTML = "<strong>Don't miss:</strong> " + item.highlights;
+      body.appendChild(spot);
+    }
+
+    var desc = document.createElement("p");
+    desc.className = "card-desc";
+    desc.textContent = item.desc;
+    body.appendChild(desc);
+
+    var links = document.createElement("div");
+    links.className = "card-links";
+
+    if(item.mapQuery){
+      var dirA = document.createElement("a");
+      dirA.className = "dir-link";
+      dirA.dataset.dest = item.mapQuery;
+      dirA.href = mapsDirUrl(dirA.dataset.dest);
+      dirA.target = "_blank";
+      dirA.rel = "noopener";
+      dirA.textContent = item.mapLabel || "Directions →";
+      links.appendChild(dirA);
+    }
+
+    if(item.link){
+      var infoA = document.createElement("a");
+      infoA.className = "secondary";
+      infoA.href = item.link;
+      infoA.target = "_blank";
+      infoA.rel = "noopener";
+      infoA.textContent = item.linkLabel || "More info";
+      links.appendChild(infoA);
+    }
+
+    if(links.children.length) body.appendChild(links);
+
+    card.appendChild(body);
+    return card;
+  }
+
+  /* ============ RENDER: Neighborhoods tab (category buttons -> drill-in list) ============ */
+  function renderNeighborhoodCategories(){
+    var grid = document.getElementById("neighborhoods-cat-grid");
+    grid.innerHTML = "";
+    NEIGHBORHOOD_CATEGORIES.forEach(function(c){
+      var count = NEIGHBORHOODS.filter(function(a){ return a.cat === c.value; }).length;
+      if(count === 0) return;
+      var btn = document.createElement("button");
+      btn.className = "cat-btn";
+      btn.innerHTML = "<svg viewBox=\"0 0 24 24\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\">" + c.icon + "</svg>"
+        + "<span class=\"cat-btn-label\">" + c.label + "</span>"
+        + "<span class=\"cat-count\">" + count + "</span>"
+        + "<span class=\"cat-chevron\">&#8250;</span>";
+      btn.addEventListener("click", function(){ showNeighborhoodCategory(c.value); });
+      grid.appendChild(btn);
+    });
+  }
+
+  function showNeighborhoodCategory(value){
+    var c = NEIGHBORHOOD_CATEGORIES.filter(function(x){ return x.value === value; })[0];
+    if(!c) return;
+
+    var items = NEIGHBORHOODS.filter(function(a){ return a.cat === value; });
+    items.sort(function(a,b){ return a.dist - b.dist; });
+
+    var header = document.getElementById("neighborhoods-detail-header");
+    header.innerHTML = "<svg viewBox=\"0 0 24 24\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\">" + c.icon + "</svg>"
+      + "<h2>" + c.label + "</h2>"
+      + "<span class=\"cat-count\">" + items.length + "</span>";
+
+    var listEl = document.getElementById("neighborhoods-list");
+    listEl.innerHTML = "";
+    items.forEach(function(item){
+      listEl.appendChild(buildNeighborhoodCard(item));
+    });
+
+    document.getElementById("neighborhoods-categories").style.display = "none";
+    document.getElementById("neighborhoods-detail").style.display = "block";
+    window.scrollTo(0,0);
+  }
+
+  function showNeighborhoodCategories(){
+    document.getElementById("neighborhoods-detail").style.display = "none";
+    document.getElementById("neighborhoods-categories").style.display = "block";
+    window.scrollTo(0,0);
+  }
+
+  function drawNeighborhoods(){
+    renderNeighborhoodCategories();
+    showNeighborhoodCategories();
+  }
+
+  document.getElementById("neighborhoods-back").addEventListener("click", showNeighborhoodCategories);
+
+  /* ============ RENDER: Food tab (category buttons -> drill-in list) ============ */
+  function renderFoodCategories(){
+    var grid = document.getElementById("food-cat-grid");
+    grid.innerHTML = "";
+    FOOD_CATEGORIES.forEach(function(c){
+      var count = FOOD.filter(function(a){ return a.cat === c.value; }).length;
+      if(count === 0) return;
+      var btn = document.createElement("button");
+      btn.className = "cat-btn";
+      btn.innerHTML = "<svg viewBox=\"0 0 24 24\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"" + c.icon + "\"/></svg>"
+        + "<span class=\"cat-btn-label\">" + c.label + "</span>"
+        + "<span class=\"cat-count\">" + count + "</span>"
+        + "<span class=\"cat-chevron\">&#8250;</span>";
+      btn.addEventListener("click", function(){ showFoodCategory(c.value); });
+      grid.appendChild(btn);
+    });
+  }
+
+  function showFoodCategory(value){
+    var c = FOOD_CATEGORIES.filter(function(x){ return x.value === value; })[0];
+    if(!c) return;
+
+    var items = FOOD.filter(function(a){ return a.cat === value; });
+    items.sort(function(a,b){ return a.dist - b.dist; });
+
+    var header = document.getElementById("food-detail-header");
+    header.innerHTML = "<svg viewBox=\"0 0 24 24\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"" + c.icon + "\"/></svg>"
+      + "<h2>" + c.label + "</h2>"
+      + "<span class=\"cat-count\">" + items.length + "</span>";
+
+    var listEl = document.getElementById("food-list");
+    listEl.innerHTML = "";
+    items.forEach(function(item){
+      listEl.appendChild(buildCard(item));
+    });
+
+    document.getElementById("food-categories").style.display = "none";
+    document.getElementById("food-detail").style.display = "block";
+    window.scrollTo(0,0);
+  }
+
+  function showFoodCategories(){
+    document.getElementById("food-detail").style.display = "none";
+    document.getElementById("food-categories").style.display = "block";
+    window.scrollTo(0,0);
+  }
+
+  function drawFood(){
+    renderFoodCategories();
+    showFoodCategories();
+  }
+
+  document.getElementById("food-back").addEventListener("click", showFoodCategories);
+
+  /* ============ RENDER: Activities tab (category buttons -> drill-in list) ============ */
+  function renderActivityCategories(){
+    var grid = document.getElementById("activities-cat-grid");
+    grid.innerHTML = "";
+    ACTIVITY_CATEGORIES.forEach(function(c){
+      var count = ACTIVITIES.filter(function(a){ return a.cat === c.value; }).length;
+      if(count === 0) return;
+      var btn = document.createElement("button");
+      btn.className = "cat-btn";
+      btn.innerHTML = "<svg viewBox=\"0 0 24 24\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"" + c.icon + "\"/></svg>"
+        + "<span class=\"cat-btn-label\">" + c.label + "</span>"
+        + "<span class=\"cat-count\">" + count + "</span>"
+        + "<span class=\"cat-chevron\">&#8250;</span>";
+      btn.addEventListener("click", function(){ showActivityCategory(c.value); });
+      grid.appendChild(btn);
+    });
+  }
+
+  function showActivityCategory(value){
+    var c = ACTIVITY_CATEGORIES.filter(function(x){ return x.value === value; })[0];
+    if(!c) return;
+
+    var items = ACTIVITIES.filter(function(a){ return a.cat === value; });
+    items.sort(function(a,b){ return a.dist - b.dist; });
+
+    var header = document.getElementById("activities-detail-header");
+    header.innerHTML = "<svg viewBox=\"0 0 24 24\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"" + c.icon + "\"/></svg>"
+      + "<h2>" + c.label + "</h2>"
+      + "<span class=\"cat-count\">" + items.length + "</span>";
+
+    var listEl = document.getElementById("activities-list");
+    listEl.innerHTML = "";
+    items.forEach(function(item){
+      listEl.appendChild(buildCard(item));
+    });
+
+    document.getElementById("activities-categories").style.display = "none";
+    document.getElementById("activities-detail").style.display = "block";
+    window.scrollTo(0,0);
+  }
+
+  function showActivityCategories(){
+    document.getElementById("activities-detail").style.display = "none";
+    document.getElementById("activities-categories").style.display = "block";
+    window.scrollTo(0,0);
+  }
+
+  function drawActivities(){
+    renderActivityCategories();
+    showActivityCategories();
+  }
+
+  document.getElementById("activities-back").addEventListener("click", showActivityCategories);
+
+  /* ============ RENDER: info accordions (City Info & History tabs) ============ */
+  function renderInfoBlocks(containerId, blocks){
+    var el = document.getElementById(containerId);
+    el.innerHTML = "";
+    blocks.forEach(function(b, i){
+      var det = document.createElement("details");
+      det.className = "info-block";
+      if(b.open) det.setAttribute("open","");
+      var sum = document.createElement("summary");
+      sum.innerHTML = "<span>" + b.title + "</span><span class=\"chev\">&#9656;</span>";
+      det.appendChild(sum);
+      var body = document.createElement("div");
+      body.className = "info-body";
+      body.innerHTML = b.html;
+      det.appendChild(body);
+      el.appendChild(det);
+    });
+  }
+
+  function drawCityInfo(){ renderInfoBlocks("city-info-list", CITY_INFO); }
+  function drawHistory(){ renderInfoBlocks("history-list", HISTORY); }
+
+  /* ============ RENDER: Favorites tab ============ */
+  function drawFavorites(){
+    var ids = getFavoriteIds();
+    var favActivities = ACTIVITIES.filter(function(a){ return ids.indexOf(a.id) !== -1; });
+    var favFood = FOOD.filter(function(a){ return ids.indexOf(a.id) !== -1; });
+    var favNeighborhoods = NEIGHBORHOODS.filter(function(a){ return ids.indexOf(a.id) !== -1; });
+    favActivities.sort(function(a,b){ return a.dist - b.dist; });
+    favFood.sort(function(a,b){ return a.dist - b.dist; });
+
+    var container = document.getElementById("favorites-list");
+    container.innerHTML = "";
+
+    if(favActivities.length === 0 && favFood.length === 0 && favNeighborhoods.length === 0){
+      var empty = document.createElement("p");
+      empty.className = "empty-note";
+      empty.textContent = "No favorites yet — tap the star on any card to add it here.";
+      container.appendChild(empty);
+      return;
+    }
+
+    if(favActivities.length){
+      var h1 = document.createElement("p");
+      h1.className = "section-title";
+      h1.textContent = "Activities";
+      container.appendChild(h1);
+      favActivities.forEach(function(item){ container.appendChild(buildCard(item)); });
+    }
+    if(favFood.length){
+      var h2 = document.createElement("p");
+      h2.className = "section-title";
+      h2.textContent = "Food & Drink";
+      container.appendChild(h2);
+      favFood.forEach(function(item){ container.appendChild(buildCard(item)); });
+    }
+    if(favNeighborhoods.length){
+      var h3 = document.createElement("p");
+      h3.className = "section-title";
+      h3.textContent = "Neighborhoods";
+      container.appendChild(h3);
+      favNeighborhoods.forEach(function(item){ container.appendChild(buildNeighborhoodCard(item)); });
+    }
+  }
+
+  /* ============ TABS ============ */
+  function showPanel(tabId){
+    document.querySelectorAll(".tab-panel").forEach(function(p){ p.classList.remove("active"); });
+    document.getElementById(tabId).classList.add("active");
+    window.scrollTo(0,0);
+  }
+
+  var tabButtons = document.querySelectorAll("#tab-bar button");
+  tabButtons.forEach(function(btn){
+    btn.addEventListener("click", function(){
+      tabButtons.forEach(function(b){ b.classList.remove("active"); });
+      btn.classList.add("active");
+      showPanel(btn.getAttribute("data-tab"));
+      if(btn.getAttribute("data-tab") === "tab-favorites") drawFavorites();
+    });
+  });
+
+  document.getElementById("weather-widget").addEventListener("click", function(){
+    showPanel("tab-weather");
+  });
+  document.getElementById("weather-back").addEventListener("click", function(){
+    var activeBtn = document.querySelector("#tab-bar button.active");
+    showPanel(activeBtn ? activeBtn.getAttribute("data-tab") : "tab-activities");
+  });
+
+  /* ============ WEATHER ============ */
+  var WEATHER_LAT = 39.7655, WEATHER_LON = -105.0604;
+  var WEATHER_CODES = {
+    0:{label:"Clear sky", icon:"☀️"},
+    1:{label:"Mostly clear", icon:"🌤️"},
+    2:{label:"Partly cloudy", icon:"⛅"},
+    3:{label:"Overcast", icon:"☁️"},
+    45:{label:"Fog", icon:"🌫️"},
+    48:{label:"Freezing fog", icon:"🌫️"},
+    51:{label:"Light drizzle", icon:"🌦️"},
+    53:{label:"Drizzle", icon:"🌦️"},
+    55:{label:"Heavy drizzle", icon:"🌧️"},
+    56:{label:"Freezing drizzle", icon:"🌧️"},
+    57:{label:"Freezing drizzle", icon:"🌧️"},
+    61:{label:"Light rain", icon:"🌦️"},
+    63:{label:"Rain", icon:"🌧️"},
+    65:{label:"Heavy rain", icon:"🌧️"},
+    66:{label:"Freezing rain", icon:"🌧️"},
+    67:{label:"Freezing rain", icon:"🌧️"},
+    71:{label:"Light snow", icon:"🌨️"},
+    73:{label:"Snow", icon:"🌨️"},
+    75:{label:"Heavy snow", icon:"❄️"},
+    77:{label:"Snow grains", icon:"❄️"},
+    80:{label:"Rain showers", icon:"🌦️"},
+    81:{label:"Rain showers", icon:"🌧️"},
+    82:{label:"Heavy rain showers", icon:"⛈️"},
+    85:{label:"Snow showers", icon:"🌨️"},
+    86:{label:"Snow showers", icon:"🌨️"},
+    95:{label:"Thunderstorm", icon:"⛈️"},
+    96:{label:"Thunderstorm, hail", icon:"⛈️"},
+    99:{label:"Thunderstorm, hail", icon:"⛈️"}
+  };
+  function weatherInfo(code){
+    return WEATHER_CODES[code] || {label:"Unknown", icon:"🌡️"};
+  }
+  function dayLabel(dateStr, index){
+    if(index === 0) return "Today";
+    var d = new Date(dateStr + "T00:00:00");
+    return d.toLocaleDateString(undefined, {weekday:"short"});
+  }
+
+  function clearSkel(el){ el.classList.remove("skeleton"); }
+
+  var weatherLastUpdated = null;
+  function updateWeatherTimestamp(){
+    var el = document.getElementById("weather-updated");
+    if(!el || !weatherLastUpdated) return;
+    var mins = Math.round((Date.now() - weatherLastUpdated) / 60000);
+    el.textContent = mins < 1 ? "Updated just now" : "Updated " + mins + " min" + (mins === 1 ? "" : "s") + " ago";
+  }
+
+  function renderWeather(data){
+    var cur = data.current;
+    var info = weatherInfo(cur.weather_code);
+
+    var widgetIcon = document.getElementById("weather-widget-icon");
+    var widgetTemp = document.getElementById("weather-widget-temp");
+    var nowIcon = document.getElementById("weather-now-icon");
+    var nowTemp = document.getElementById("weather-now-temp");
+    var nowDesc = document.getElementById("weather-now-desc");
+
+    document.getElementById("weather-widget").classList.remove("is-error");
+    [widgetIcon, widgetTemp, nowIcon, nowTemp, nowDesc].forEach(clearSkel);
+    nowDesc.classList.remove("is-error");
+
+    widgetIcon.textContent = info.icon;
+    widgetTemp.textContent = Math.round(cur.temperature_2m) + "°";
+
+    nowIcon.textContent = info.icon;
+    nowTemp.textContent = Math.round(cur.temperature_2m) + "°F";
+    nowDesc.textContent = info.label;
+
+    document.getElementById("weather-now-details").innerHTML = ""
+      + "<span class=\"weather-now-stat\">Feels like " + Math.round(cur.apparent_temperature) + "°F</span>"
+      + "<span class=\"weather-now-stat\">Humidity " + Math.round(cur.relative_humidity_2m) + "%</span>"
+      + "<span class=\"weather-now-stat\">Wind " + Math.round(cur.wind_speed_10m) + " mph</span>";
+
+    weatherLastUpdated = Date.now();
+    updateWeatherTimestamp();
+
+    var list = document.getElementById("weather-forecast-list");
+    list.innerHTML = "";
+    data.daily.time.forEach(function(dateStr, i){
+      var dInfo = weatherInfo(data.daily.weather_code[i]);
+      var precip = data.daily.precipitation_probability_max ? data.daily.precipitation_probability_max[i] : null;
+      var card = document.createElement("div");
+      card.className = "weather-day-card" + (i === 0 ? " today" : "");
+      card.innerHTML = "<span class=\"weather-day-name\">" + dayLabel(dateStr, i) + "</span>"
+        + "<span class=\"weather-day-icon\">" + dInfo.icon + "</span>"
+        + "<span class=\"weather-day-temps\">" + Math.round(data.daily.temperature_2m_max[i]) + "°/" + Math.round(data.daily.temperature_2m_min[i]) + "°</span>"
+        + (precip !== null ? "<span class=\"weather-day-precip\">💧" + Math.round(precip) + "%</span>" : "");
+      list.appendChild(card);
+    });
+  }
+
+  function loadWeather(){
+    var url = "https://api.open-meteo.com/v1/forecast?latitude=" + WEATHER_LAT + "&longitude=" + WEATHER_LON
+      + "&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code"
+      + "&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max"
+      + "&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FDenver&forecast_days=7";
+
+    var controller = ("AbortController" in window) ? new AbortController() : null;
+    var timeoutId = controller ? setTimeout(function(){ controller.abort(); }, 8000) : null;
+
+    fetch(url, controller ? {signal:controller.signal} : {}).then(function(res){
+      if(timeoutId) clearTimeout(timeoutId);
+      if(!res.ok) throw new Error("Weather request failed: " + res.status);
+      return res.json();
+    }).then(renderWeather).catch(function(err){
+      if(timeoutId) clearTimeout(timeoutId);
+      console.error("Weather load failed:", err);
+      var widgetIcon = document.getElementById("weather-widget-icon");
+      var widgetTemp = document.getElementById("weather-widget-temp");
+      var nowIcon = document.getElementById("weather-now-icon");
+      var nowTemp = document.getElementById("weather-now-temp");
+      var nowDesc = document.getElementById("weather-now-desc");
+      [widgetIcon, widgetTemp, nowIcon, nowTemp, nowDesc].forEach(clearSkel);
+      document.getElementById("weather-widget").classList.add("is-error");
+      widgetIcon.textContent = "⚠️";
+      widgetTemp.textContent = "N/A";
+      nowIcon.textContent = "⚠️";
+      nowTemp.textContent = "--°F";
+      nowDesc.textContent = "Weather unavailable right now — check back when you have a signal.";
+      nowDesc.classList.add("is-error");
+    });
+  }
+
+  setInterval(updateWeatherTimestamp, 30000);
+
+  drawActivities();
+  drawFood();
+  drawNeighborhoods();
+  drawCityInfo();
+  drawHistory();
+  drawFavorites();
+  loadWeather();
+
+})();
+</script>
+</body>
+</html>

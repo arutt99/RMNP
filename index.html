@@ -168,6 +168,26 @@
   .weather-widget-temp{font-size:13.5px;font-weight:700;color:var(--text);}
   .weather-widget-temp.skeleton{width:26px;height:12px;vertical-align:middle;}
   .weather-widget.is-error .weather-widget-temp{color:var(--rust);}
+  /* ---------- Cross-guide switch link ---------- */
+  .guide-switch{
+    position:absolute;
+    top:54px;right:16px;
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:5px 11px 5px 9px;
+    font-family:var(--sans);
+    font-size:12px;
+    font-weight:700;
+    color:var(--accent);
+    white-space:nowrap;
+    z-index:2;
+  }
+  .guide-switch:active{background:var(--bg-elev-2);}
+  .guide-switch svg{width:13px;height:13px;stroke:var(--accent);fill:none;flex:0 0 auto;}
 
   /* ---------- Tabs content ---------- */
   main{padding:16px 14px 28px;max-width:640px;margin:0 auto;}
@@ -905,6 +925,8 @@
     <span class="weather-widget-icon skeleton" id="weather-widget-icon"></span>
     <span class="weather-widget-temp skeleton" id="weather-widget-temp"></span>
   </button>
+  <a class="guide-switch" href="denver.html" aria-label="Go to Denver Trip Guide">
+    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12 h14 M13 6 l6 6 -6 6"/></svg>Denver Trip Guide</a>
   <p class="eyebrow">Estes Park &middot; July 2026</p>
   <h1>Rocky Mountain National Park Trip Guide</h1>
   <div class="stay-line">
